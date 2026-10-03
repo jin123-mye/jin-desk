@@ -1,0 +1,1190 @@
+<title>진의 데스크</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F8; --panel:#FFFFFF; --ink:#18202E; --muted:#5D6677; --faint:#8A92A2;
+  --line:#DEE2E9; --hover:#EEF1F6;
+  --mail:#2E56C8; --mail-soft:#E6ECFB;
+  --drive:#17805F; --drive-soft:#E2F3EC;
+  --cal:#6A4BC4; --cal-soft:#EEE9FB;
+  --bud:#0F7B8A; --bud-soft:#E0F2F5;
+  --sample:#9A5B0B; --sample-soft:#FBEFD9;
+  --bad:#B4322A; --bad-soft:#FBE7E5;
+  --ok:#1C8A4C;
+  --sans:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10141B; --panel:#171C25; --ink:#E7EAF0; --muted:#A1A9B8; --faint:#737C8D;
+    --line:#29303D; --hover:#1E2531;
+    --mail:#8DA8F5; --mail-soft:#1F2A47;
+    --drive:#5FCB9F; --drive-soft:#16302A;
+    --cal:#B9A6F7; --cal-soft:#2A2344;
+    --bud:#62CBD9; --bud-soft:#14303A;
+    --sample:#EDB45C; --sample-soft:#3A2B14;
+    --bad:#F08D84; --bad-soft:#3B1D1B;
+    --ok:#5FD08F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10141B; --panel:#171C25; --ink:#E7EAF0; --muted:#A1A9B8; --faint:#737C8D;
+  --line:#29303D; --hover:#1E2531;
+  --mail:#8DA8F5; --mail-soft:#1F2A47;
+  --drive:#5FCB9F; --drive-soft:#16302A;
+  --cal:#B9A6F7; --cal-soft:#2A2344;
+  --bud:#62CBD9; --bud-soft:#14303A;
+  --sample:#EDB45C; --sample-soft:#3A2B14;
+  --bad:#F08D84; --bad-soft:#3B1D1B;
+  --ok:#5FD08F;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 40px;display:grid;gap:20px}
+@media (max-width:520px){.wrap{padding-inline:16px;padding-block:20px 32px}}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+h1{margin:2px 0 0;font-size:28px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.status{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.status[data-s="live"] .dot{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+.status[data-s="sample"] .dot{background:var(--sample)}
+.status[data-s="error"] .dot{background:var(--bad)}
+
+/* summary */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:880px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px}
+.stat .k{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.stat .v{font-family:var(--mono);font-size:28px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .sub{font-size:12px;color:var(--faint)}
+.swatch{width:10px;height:10px;border-radius:3px;flex:none}
+
+/* panels */
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:1080px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))} .cols > .cal{grid-column:1 / -1}}
+@media (max-width:700px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.ptitle{display:flex;align-items:center;gap:10px;min-width:0}
+.ptitle h2{margin:0;font-size:16px;font-weight:600}
+.badge-src{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;font-weight:500}
+.mail .badge-src{background:var(--mail-soft);color:var(--mail)}
+.drive .badge-src{background:var(--drive-soft);color:var(--drive)}
+.cal .badge-src{background:var(--cal-soft);color:var(--cal)}
+.pmeta{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.chip:hover{background:var(--hover)}
+.chip[aria-pressed="true"]{color:var(--panel);border-color:transparent}
+.mail .chip[aria-pressed="true"]{background:var(--mail)}
+.drive .chip[aria-pressed="true"]{background:var(--drive)}
+.cal .chip[aria-pressed="true"]{background:var(--cal)}
+.refresh{margin-left:auto;font:inherit;font-size:12.5px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.addbtn{font:inherit;font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid transparent;color:var(--panel);cursor:pointer}
+.addbtn[hidden],.refresh[hidden]{display:none}
+.tools.top{border-bottom:0;padding-bottom:6px}
+.tools.sub{padding-top:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.segb{font:inherit;font-size:12.5px;padding:4px 12px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.segb+.segb{border-left:1px solid var(--line)}
+.segb:hover{background:var(--hover)}
+.segb[hidden],.menu[hidden]{display:none}
+.mail .segb[aria-pressed="true"]{background:var(--mail);color:var(--panel);font-weight:600}
+.morewrap{position:relative}
+.refresh.mini{margin-left:0;padding:4px 9px;font-weight:700}
+.menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;display:grid;min-width:120px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.menu button{font:inherit;font-size:13px;text-align:left;padding:7px 10px;border:0;border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
+.menu button:hover{background:var(--hover)}
+.menu button[hidden]{display:none}
+.row.read .t{font-weight:400;color:var(--muted)}
+.cal .addbtn{background:var(--cal)}
+.mail .addbtn{background:var(--mail)}
+.addbtn:hover{filter:brightness(1.08)}
+dialog.dlg{width:min(420px,calc(100vw - 32px));border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);padding:0;box-shadow:0 20px 60px rgba(0,0,0,.28)}
+dialog.dlg::backdrop{background:rgba(10,14,20,.45)}
+.dlg form{display:grid;gap:12px;padding:18px}
+.dlg h3{margin:0;font-size:16px}
+.dlg label{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.dlg input,.dlg textarea{font:inherit;font-size:14px;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0}
+.dlg textarea{min-height:140px;resize:vertical}
+.dlg .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dlg .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
+.dlg .chk input{width:auto}
+.dlg .acts{display:flex;justify-content:flex-end;gap:8px}
+.dlg .hint{font-size:12px;color:var(--faint);line-height:1.5}
+.chip[hidden],.refresh[hidden]{display:none}
+.tag.src{background:var(--hover);color:var(--muted);font-weight:500}
+.dlg .err{color:var(--bad);font-size:13px;min-height:0}
+.dlg .ok{font:inherit;font-weight:600;padding:7px 14px;border-radius:8px;border:0;color:var(--panel);cursor:pointer}
+.dlg .ok:disabled{opacity:.5}
+.dlg.c .ok{background:var(--cal)} .dlg.m .ok{background:var(--mail)}
+.dlg .no{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.refresh:hover{background:var(--hover)}
+.refresh:disabled{opacity:.5;cursor:default}
+button:focus-visible,a:focus-visible{outline:2px solid var(--mail);outline-offset:2px}
+
+.note{margin:12px 16px 0;padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.55}
+.note.sample{background:var(--sample-soft);color:var(--sample)}
+.note.bad{background:var(--bad-soft);color:var(--bad)}
+.note.stale{background:var(--hover);color:var(--muted)}
+
+ul.list{list-style:none;margin:0;padding:6px 0}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;padding:10px 16px;align-items:start;text-decoration:none;color:inherit}
+a.row:hover{background:var(--hover)}
+.row .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:500;grid-row:span 2}
+.mail .row .ic{background:var(--mail-soft);color:var(--mail)}
+.drive .row .ic{background:var(--drive-soft);color:var(--drive)}
+.row .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .when{font-family:var(--mono);font-size:12px;color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+.row .s{grid-column:2 / span 2;font-size:13px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.row .by{font-size:12.5px;color:var(--muted);font-weight:400}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;margin-right:6px;vertical-align:1px}
+.tag.sample{background:var(--sample-soft);color:var(--sample)}
+.tag.new{background:var(--mail-soft);color:var(--mail)}
+.tag.now{background:var(--cal);color:var(--panel)}
+
+/* calendar rows */
+.row.ev{grid-template-columns:62px minmax(0,1fr) auto}
+.ev .tm{grid-row:span 2;font-family:var(--mono);font-size:12.5px;line-height:1.4;font-variant-numeric:tabular-nums;color:var(--ink);padding-top:1px}
+.ev .tm small{display:block;font-size:11.5px;color:var(--faint)}
+.ev.now{box-shadow:inset 3px 0 0 var(--cal);background:color-mix(in srgb,var(--cal-soft) 60%,transparent)}
+.list .row.ev.past{opacity:.5}
+.dayh{padding:12px 16px 2px;font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.02em}
+.dayh:first-child{padding-top:4px}
+.list.is-sample .row{opacity:.92}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+.skel{height:12px;border-radius:4px;background:var(--hover);margin:6px 0}
+
+ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
+.more{padding:10px 16px;text-align:center;font-size:12.5px;color:var(--faint)}
+.bud .badge-src{background:var(--bud-soft);color:var(--bud)}
+.budgrid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr)}
+@media (max-width:760px){.budgrid{grid-template-columns:1fr} .budsum{border-right:0!important;border-bottom:1px solid var(--line)}}
+.budsum{padding:16px;border-right:1px solid var(--line);display:grid;gap:16px;align-content:start}
+.bk{font-size:12.5px;color:var(--muted)}
+.bv{font-family:var(--mono);font-size:26px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.bs{font-size:12px;color:var(--faint);line-height:1.5}
+.bs button{font:inherit;color:var(--bud);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.bar{height:8px;border-radius:99px;background:var(--hover);overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:var(--bud);border-radius:99px}
+.bar i.warn{background:var(--sample)} .bar i.over{background:var(--bad)}
+.budlist{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
+.brow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 12px;padding:10px 16px;align-items:center}
+.brow .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);grid-row:span 2}
+.brow.warn .dot,.brow.ending .dot{background:var(--sample)} .brow.failing .dot,.brow.paused .dot{background:var(--bad)} .brow.unknown .dot{background:var(--faint)}
+.brow .bn{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brow .ba{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.brow .bd{grid-column:2 / span 2;font-size:12.5px;color:var(--muted)}
+.brow.off .bn,.brow.off .ba{color:var(--muted)}
+.brow .flag{color:var(--bad);font-weight:600}
+[hidden]{display:none!important}
+.foot{font-size:12.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:6px 18px}
+.foot b{color:var(--muted);font-weight:500}
+@media (prefers-reduced-motion:no-preference){ .row{transition:background .12s} }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow" id="today">—</div>
+      <h1>진의 데스크</h1>
+    </div>
+    <div class="status" id="status" data-s="sample"><span class="dot"></span><span id="statusText">샘플 데이터 표시 중 · 연결 확인 중</span></div>
+  </header>
+
+  <section class="stats" aria-label="요약">
+    <div class="stat">
+      <div class="k"><span class="swatch" style="background:var(--cal)"></span>오늘 남은 일정</div>
+      <div class="v" id="stCal">—</div>
+      <div class="sub" id="stCalSub">지금 이후 끝나는 일정</div>
+    </div>
+    <div class="stat">
+      <div class="k"><span class="swatch" style="background:var(--mail)"></span>읽지 않은 메일</div>
+      <div class="v" id="stUnread">—</div>
+      <div class="sub" id="stUnreadSub">받은편지함 기준 · Gmail 추정치</div>
+    </div>
+    <div class="stat">
+      <div class="k"><span class="swatch" style="background:var(--mail)"></span>오늘 도착한 안 읽은 메일</div>
+      <div class="v" id="stToday">—</div>
+      <div class="sub" id="stTodaySub">목록에 불러온 메일 중</div>
+    </div>
+    <div class="stat">
+      <div class="k"><span class="swatch" style="background:var(--drive)"></span>최근 7일 드라이브 변경</div>
+      <div class="v" id="stDrive">—</div>
+      <div class="sub" id="stDriveSub">목록에 불러온 파일 중</div>
+    </div>
+  </section>
+
+  <dialog class="dlg c" id="evDlg">
+    <form method="dialog" id="evForm">
+      <h3>일정 추가</h3>
+      <label>제목<input id="evTitle" required maxlength="200" autocomplete="off"></label>
+      <label>날짜<input id="evDate" type="date" required></label>
+      <label class="chk"><input id="evAllDay" type="checkbox"> 종일</label>
+      <div class="two" id="evTimes">
+        <label>시작<input id="evStart" type="time" value="09:00"></label>
+        <label>끝<input id="evEnd" type="time" value="10:00"></label>
+      </div>
+      <label>장소 (선택)<input id="evLoc" maxlength="200" autocomplete="off"></label>
+      <div class="err" id="evErr" role="alert"></div>
+      <div class="acts"><button class="no" type="button" id="evCancel">취소</button><button class="ok" type="submit" id="evOk">추가</button></div>
+    </form>
+  </dialog>
+  <dialog class="dlg m" id="dmDlg">
+    <form method="dialog" id="dmForm">
+      <h3>Daum 메일 연결</h3>
+      <label>Daum 메일 주소<input id="dmUser" type="email" required autocomplete="off" placeholder="id@daum.net 또는 id@hanmail.net"></label>
+      <label>앱 비밀번호<input id="dmPass" type="password" autocomplete="off" placeholder="Daum에서 만든 앱 비밀번호"></label>
+      <div class="hint" id="dmHint">Daum 메일 → 환경설정 → IMAP/POP3에서 IMAP을 켜 두어야 합니다. 비밀번호는 이 맥의 키체인에만 저장되고, 메일은 읽기만 합니다(읽음 표시도 바뀌지 않음).</div>
+      <div class="err" id="dmErr" role="alert"></div>
+      <div class="acts"><button class="no" type="button" id="dmOff" hidden>연결 해제</button><button class="no" type="button" id="dmCancel">취소</button><button class="ok" type="submit" id="dmOk">연결</button></div>
+    </form>
+  </dialog>
+  <dialog class="dlg m" id="mailDlg">
+    <form method="dialog" id="mailForm">
+      <h3>메일 쓰기</h3>
+      <label>받는 사람 (쉼표로 여러 명)<input id="mTo" required autocomplete="off" placeholder="name@example.com"></label>
+      <label>제목<input id="mSubj" maxlength="300" autocomplete="off"></label>
+      <label>내용<textarea id="mBody"></textarea></label>
+      <div class="err" id="mErr" role="alert"></div>
+      <div class="acts"><button class="no" type="button" id="mCancel">취소</button><button class="ok" type="submit" id="mOk">보내기</button></div>
+    </form>
+  </dialog>
+
+  <div class="cols">
+    <section class="panel cal" aria-labelledby="calH">
+      <div class="phead">
+        <div class="ptitle"><h2 id="calH">일정</h2><span class="badge-src">Calendar</span></div>
+        <span class="pmeta" id="calMeta">—</span>
+      </div>
+      <div class="tools" role="group" aria-label="일정 범위">
+        <button class="chip" id="cf-today" data-f="today" aria-pressed="true">오늘</button>
+        <button class="chip" id="cf-week" data-f="week" aria-pressed="false">앞으로 7일</button>
+        <button class="chip" id="cf-month" data-f="month" aria-pressed="false">30일</button>
+        <button class="refresh" id="calRefresh" type="button">새로고침</button>
+        <button class="addbtn" id="calAdd" type="button" hidden>+ 일정 추가</button>
+      </div>
+      <div id="calNote"></div>
+      <ul class="list" id="calList"></ul>
+    </section>
+
+    <section class="panel mail" aria-labelledby="mailH">
+      <div class="phead">
+        <div class="ptitle"><h2 id="mailH">받은편지함 · 읽지 않음</h2><span class="badge-src" id="mailBadge">Gmail</span></div>
+        <span class="pmeta" id="mailMeta">—</span>
+      </div>
+      <div class="tools top" role="group" aria-label="메일 계정">
+        <div class="seg" role="group" aria-label="메일 계정 선택">
+          <button class="segb" id="mf-merge" type="button" aria-pressed="false" hidden title="Gmail과 Daum을 시간순으로 한 목록에">통합</button>
+          <button class="segb" id="mf-gmail" type="button" aria-pressed="true" hidden>Gmail</button>
+          <button class="segb" id="mf-daum" type="button" aria-pressed="false" hidden title="Daum(한메일) 받은편지함 — 읽기 전용">Daum</button>
+        </div>
+        <button class="refresh" id="mailRefresh" type="button">새로고침</button>
+        <button class="addbtn" id="mailNew" type="button" hidden>✎ 메일 쓰기</button>
+        <div class="morewrap">
+          <button class="refresh mini" id="mailMore" type="button" aria-label="더보기" aria-expanded="false" hidden>⋯</button>
+          <div class="menu" id="mailMenu" hidden>
+            <button id="mailReadAll" type="button" hidden title="지금 필터의 안 읽은 메일을 모두 읽음으로 표시">전체 읽음</button>
+            <button id="dmSet" type="button" hidden>Daum 설정</button>
+          </div>
+        </div>
+      </div>
+      <div class="tools sub" role="group" aria-label="메일 필터">
+        <button class="chip" id="mf-all" data-f="all" aria-pressed="true">안 읽음</button>
+        <button class="chip" id="mf-inbox" data-f="inbox" aria-pressed="false" title="읽은 메일까지 받은편지함 전체">전체 메일</button>
+        <button class="chip" id="mf-primary" data-f="primary" aria-pressed="false">기본 탭</button>
+        <button class="chip" id="mf-important" data-f="important" aria-pressed="false">중요</button>
+        <button class="chip" id="mf-ads" aria-pressed="true" title="Gmail 프로모션·소셜 분류와 제목에 (광고) 표시가 있는 메일을 숨깁니다">광고 숨김</button>
+      </div>
+      <div id="mailNote"></div>
+      <ul class="list" id="mailList"></ul>
+    </section>
+
+    <section class="panel drive" aria-labelledby="driveH">
+      <div class="phead">
+        <div class="ptitle"><h2 id="driveH">최근 파일</h2><span class="badge-src">Google Drive</span></div>
+        <span class="pmeta" id="driveMeta">—</span>
+      </div>
+      <div class="tools" role="group" aria-label="드라이브 정렬">
+        <button class="chip" id="df-recency" data-f="recency" aria-pressed="true">최근 활동</button>
+        <button class="chip" id="df-mine" data-f="lastModifiedByMe" aria-pressed="false">내가 수정</button>
+        <button class="refresh" id="driveRefresh" type="button">새로고침</button>
+      </div>
+      <div id="driveNote"></div>
+      <ul class="list" id="driveList"></ul>
+    </section>
+  </div>
+
+  <section class="panel bud" id="budPanel" aria-labelledby="budH" hidden>
+    <div class="phead">
+      <div class="ptitle"><h2 id="budH">구독 · 예산</h2><span class="badge-src">Subscriptions</span></div>
+      <span class="pmeta" id="budMeta">—</span>
+    </div>
+    <div class="budgrid">
+      <div class="budsum" id="budSum"></div>
+      <ul class="list budlist" id="budList"></ul>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span><b>자동 갱신</b> 메일 2분 · 드라이브·일정 5분 (탭이 보일 때만)</span>
+    <span><b>샘플</b> 노란 표시가 붙은 항목은 예시 데이터입니다</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- 샘플 데이터 (실데이터가 아닌 예시) ---------- */
+  var H = 3600e3, now0 = Date.now();
+  var SAMPLE_MAIL = [
+    {from:"학과사무실", subject:"캡스톤디자인 중간발표 순서 안내", snippet:"발표 순서와 제출 양식을 첨부합니다. 발표 자료는 전날 자정까지 LMS에 올려 주세요.", t:now0-0.6*H},
+    {from:"GitHub", subject:"[team-project] PR #42 리뷰 요청", snippet:"팀원이 플레이리스트 정렬 기능 PR에 리뷰를 요청했습니다.", t:now0-2.5*H},
+    {from:"도서관", subject:"대출 도서 반납 예정 알림", snippet:"대출하신 도서의 반납 예정일이 3일 남았습니다.", t:now0-26*H},
+    {from:"팀 프로젝트", subject:"이번 주 회의 시간 투표", snippet:"목요일 저녁과 금요일 오후 중 가능한 시간을 골라 주세요.", t:now0-30*H}
+  ];
+  var SAMPLE_DRIVE = [
+    {title:"캡스톤 중간발표.pptx", kind:"슬라이드", owner:"나", t:now0-1.2*H},
+    {title:"회의록 9월 4주차", kind:"문서", owner:"나", t:now0-20*H},
+    {title:"예산표", kind:"시트", owner:"팀원", t:now0-3*24*H},
+    {title:"참고 논문", kind:"폴더", owner:"나", t:now0-9*24*H}
+  ];
+
+  function at(dayOff, h, m){ var d = new Date(); d.setDate(d.getDate()+dayOff); d.setHours(h, m||0, 0, 0); return d.getTime(); }
+  function dayStart(off){ return at(off, 0, 0); }
+  var nowH = new Date().getHours();
+  var SAMPLE_CAL_ALL = [
+    {title:"자료구조 수업", loc:"공학관 301호", s:at(0,10,0), e:at(0,11,15)},
+    {title:"캡스톤 팀 회의", loc:"온라인", s:at(0,nowH,0), e:at(0,nowH+1,0)},
+    {title:"알고리즘 스터디", loc:"도서관 스터디룸", s:at(0,21,0), e:at(0,22,30)},
+    {title:"중간발표 자료 제출", loc:"", s:dayStart(1), e:dayStart(2), allDay:true},
+    {title:"도서 반납", loc:"중앙도서관", s:at(2,15,0), e:at(2,15,30)},
+    {title:"동아리 정기 모임", loc:"학생회관", s:at(4,18,30), e:at(4,20,0)}
+  ];
+
+  /* ---------- 설정 ---------- */
+  var MAIL_Q = {
+    all: "in:inbox is:unread",
+    primary: "in:inbox is:unread category:primary",
+    important: "in:inbox is:unread is:important",
+    inbox: "in:inbox"
+  };
+  /* 광고 숨김: Gmail 분류(프로모션·소셜)는 검색어로 빼고, 제목의 (광고)·[광고] 표시는 받은 뒤 거른다.
+     정보통신망법상 광고 메일은 제목 앞에 (광고)를 붙이게 되어 있어 분류가 '업데이트'인 광고도 걸러진다. */
+  var AD_Q = " -category:promotions -category:social -subject:광고";   // 개수에서도 빠지게 검색어로 (제목에 '광고' 단어만 있는 일반 메일도 빠질 수 있음)
+  var AD_RE = /[\(\[【〔<]\s*(광고|AD)\s*[\)\]】〕>]/i;
+  // 진의 데스크 맥 앱이면 광고 숨김 설정을 앱에도 알려 WidgetKit 위젯이 같은 기준으로 보이게 한다
+  function syncAdsPref(){ if(window.jin) window.jin.call("setPref", {key: "hideAds", value: S.hideAds}).catch(function(){}); }
+  function mailQuery(){ return MAIL_Q[S.mailFilter] + (S.hideAds ? AD_Q : ""); }
+  var MAIL_EVERY = 120000, DRIVE_EVERY = 300000, CAL_EVERY = 300000;
+
+  /* Google Calendar 도구 호출 설정.
+     커넥터 연결 후 세션에서 입력 스키마·응답 형태를 확인해 채운다 (추측 금지, CLAUDE.md 5장).
+     CAL_TOOL이 null이면 캘린더는 커넥터를 부르지 않고 샘플만 보여 준다. */
+  var CAL_SERVER = "Google Calendar";
+  var CAL_TOOL = "list_events";              // 입력 스키마 확인함 (2026-09-25)
+  function calInput(b){                      // b = {from: Date, to: Date} → 도구 입력 객체 (기본 캘린더)
+    return {startTime: b.from.toISOString(), endTime: b.to.toISOString(), orderBy: "startTime", pageSize: 50};
+  }
+  function calRange(r){ var from = new Date(); from.setHours(0,0,0,0); var to = new Date(from); to.setDate(to.getDate() + (r==="month" ? 30 : r==="week" ? 7 : 1)); return {from: from, to: to}; }
+  function sampleCal(r){ var b = calRange(r); return SAMPLE_CAL_ALL.filter(function(x){ return x.e > b.from.getTime() && x.s < b.to.getTime(); }); }
+  var CAL_READY = function(){ return !!(S.mcp && CAL_TOOL); };
+
+  function load(k, d){ try{ var v = localStorage.getItem(k); return v || d; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+
+  var S = {
+    mcp: null,
+    mailFilter: load("jd.mailFilter","all"),
+    mailSrc: "gmail",
+    dm: {items: [], mode: "loading", err: null, at: null, token: null, seq: 0},
+    hideAds: load("jd.hideAds","1") === "1",
+    driveOrder: load("jd.driveOrder","recency"),
+    calRange: load("jd.calRange","today"),
+    mail: {mode:"sample", items:SAMPLE_MAIL, count:null, at:null, err:null, retried:false, unsub:null},
+    drive:{mode:"sample", items:SAMPLE_DRIVE, at:null, err:null, retried:false, unsub:null},
+    cal:  {mode:"sample", items:[], at:null, err:null, retried:false, unsub:null}
+  };
+  if(S.calRange!=="today" && S.calRange!=="week" && S.calRange!=="month") S.calRange = "today";
+  S.cal.items = sampleCal(S.calRange);
+  function sampleFor(key){ return key==="mail" ? SAMPLE_MAIL : key==="drive" ? SAMPLE_DRIVE : sampleCal(S.calRange); }
+  if(!MAIL_Q[S.mailFilter]) S.mailFilter = "all";
+  if(S.driveOrder!=="recency" && S.driveOrder!=="lastModifiedByMe") S.driveOrder = "recency";
+
+  /* ---------- 유틸 ---------- */
+  var DOW = ["일","월","화","수","목","금","토"];
+  function todayLabel(){ var d=new Date(); return (d.getMonth()+1)+"월 "+d.getDate()+"일 "+DOW[d.getDay()]+"요일"; }
+  function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+  function rel(t){
+    if(!t && t!==0) return "";
+    var d = new Date(t), diff = Date.now()-t, m = Math.round(diff/60000);
+    if(m < 1) return "방금";
+    if(m < 60) return m+"분 전";
+    if(sameDay(d,new Date())) return Math.floor(m/60)+"시간 전";
+    var y = new Date(); y.setDate(y.getDate()-1);
+    if(sameDay(d,y)) return "어제";
+    return (d.getMonth()+1)+"월 "+d.getDate()+"일";
+  }
+  function clock(t){ var d=new Date(t); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+  var ta = document.createElement("textarea");
+  function clean(s){
+    if(!s) return "";
+    ta.innerHTML = String(s);
+    return ta.value.replace(/[͏​-‍⁠﻿­]/g,"").replace(/\s+/g," ").trim();
+  }
+  function senderName(s){
+    s = clean(s);
+    var m = s.match(/^\s*"?([^"<]+?)"?\s*<([^>]+)>/);
+    if(m) return m[1].trim();
+    return s;
+  }
+  function kindOf(mime, ext){
+    mime = mime||"";
+    if(mime.indexOf("folder")>-1) return "폴더";
+    if(mime.indexOf("document")>-1 || mime.indexOf("wordprocessing")>-1) return "문서";
+    if(mime.indexOf("spreadsheet")>-1 || mime.indexOf("excel")>-1 || mime==="text/csv") return "시트";
+    if(mime.indexOf("presentation")>-1 || mime.indexOf("powerpoint")>-1) return "슬라이드";
+    if(mime.indexOf("pdf")>-1) return "PDF";
+    if(mime.indexOf("image/")===0) return "이미지";
+    if(mime.indexOf("video/")===0) return "영상";
+    if(mime.indexOf("audio/")===0) return "오디오";
+    return ext ? ext.toUpperCase().slice(0,4) : "파일";
+  }
+  var KIND_IC = {"폴더":"DIR","문서":"DOC","시트":"XLS","슬라이드":"PPT","PDF":"PDF","이미지":"IMG","영상":"VID","오디오":"AUD","파일":"FILE"};
+  function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+
+  /* ---------- 오류 문구 (코드별) ---------- */
+  var DENY = {needs_reauth:1, server_not_connected:1, selection_required:1, server_not_found:1, not_in_manifest:1, blocked_by_policy:1, approval_required:1, consent_required:1, not_granted:1, capability_disabled:1, capability_removed:1};
+  function errText(err, name){
+    if(err.native && err.message) return err.message;   // 진의 데스크 맥 앱(Google 직접 연결)이 보낸 안내문
+    switch(err.code){
+      case "needs_reauth": return name+" 연결이 만료되었습니다. claude.ai 설정의 커넥터 메뉴에서 "+name+"을(를) 다시 연결해 주세요.";
+      case "server_not_connected":
+      case "server_not_found": return name+" 커넥터가 연결되어 있지 않습니다. claude.ai 설정의 커넥터 메뉴에서 "+name+"을(를) 추가해 주세요.";
+      case "selection_required": return name+" 계정이 여러 개 연결되어 있습니다. 화면에 뜨는 선택 창에서 사용할 계정을 골라 주세요.";
+      case "not_in_manifest":
+      case "consent_required": return "이 페이지에서 "+name+" 사용이 허용되지 않았습니다. 페이지를 다시 열면 권한을 다시 요청합니다.";
+      case "blocked_by_policy":
+      case "approval_required": return "조직 정책으로 이 페이지에서 "+name+"을(를) 읽을 수 없습니다.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed": return "이 화면에서는 커넥터를 사용할 수 없습니다. claude.ai에서 페이지를 열어 주세요.";
+      case "tool_error": return name+"에서 오류를 돌려주었습니다: "+(err.message||"알 수 없는 오류");
+      case "server_unavailable":
+      case "rate_limited": return name+"에 잠시 연결할 수 없습니다. 마지막으로 받은 데이터를 보여 주고 있으며 곧 다시 시도합니다.";
+      default: return name+"에서 데이터를 가져오지 못했습니다. 새로고침을 눌러 다시 시도해 주세요.";
+    }
+  }
+
+  /* ---------- 렌더 ---------- */
+  function renderNote(box, sec, name, sampleWhy){
+    box.textContent = "";
+    var n = null;
+    if(sec.err && DENY[sec.err.code]) { n = el("div","note bad", errText(sec.err, name)); }
+    else if(sec.err) { n = el("div","note stale", errText(sec.err, name)); }
+    if(n) box.appendChild(n);
+    if(sec.mode==="sample"){
+      box.appendChild(el("div","note sample", sampleWhy));
+    }
+  }
+
+  /* 지금 보는 메일 묶음: gmail | daum | all(둘을 시간순으로 합침) */
+  function curMail(){
+    if(S.mailSrc==="daum") return S.dm;
+    if(S.mailSrc!=="all") return S.mail;
+    var g = S.mail, d = S.dm, items = [];
+    if(g.mode!=="sample") g.items.forEach(function(m){ items.push(Object.assign({}, m, {src: "Gmail"})); });
+    if(d.mode==="live") d.items.forEach(function(m){ items.push(Object.assign({}, m, {src: "Daum"})); });
+    items.sort(function(a,b){ return (b.t||0)-(a.t||0); });
+    var mode = (g.mode==="live" || d.mode==="live") ? "live" : (g.mode==="loading" || d.mode==="loading") ? "loading" : g.mode;
+    return {items: items, mode: mode, err: d.err || g.err, token: !!(g.token || d.token), loadingMore: !!(g.loadingMore || d.loadingMore), at: Math.max(g.at||0, d.at||0) || null};
+  }
+  function renderMail(){
+    var sec = curMail(), list = $("mailList");
+    list.textContent = "";
+    list.classList.toggle("is-sample", sec.mode==="sample");
+    var why = sec.err ? "아래는 예시 메일입니다. 실제 받은편지함이 아닙니다."
+                      : "아래는 예시 메일입니다. Gmail 연결이 확인되면 실제 받은편지함으로 바뀝니다.";
+    renderNote($("mailNote"), sec, S.mailSrc==="daum" ? "Daum 메일" : S.mailSrc==="all" ? (S.dm.err && !S.mail.err ? "Daum 메일" : "Gmail") : "Gmail", why);
+    if(sec.mode==="loading"){
+      for(var i=0;i<4;i++){ var li=el("li","row"); var b=el("div"); b.style.gridColumn="1 / -1";
+        b.appendChild(el("div","skel")); var s2=el("div","skel"); s2.style.width="70%"; b.appendChild(s2); li.appendChild(b); list.appendChild(li); }
+      return;
+    }
+    if(sec.mode==="live" && !sec.items.length){
+      list.appendChild(el("li","empty", S.mailFilter==="inbox" ? "메일이 없습니다." : "읽지 않은 메일이 없습니다."));
+      return;
+    }
+    var today = new Date();
+    sec.items.forEach(function(m){
+      var li = el("li");
+      var row = el(m.url ? "a" : "div","row"+(m.unread===false ? " read" : ""));
+      if(m.url){ row.href = m.url; row.target = "_blank"; row.rel = "noopener"; }
+      var name = m.from || "(보낸 사람 없음)";
+      row.appendChild(el("div","ic", name.replace(/^[^\wㄱ-힣]+/,"").slice(0,1).toUpperCase() || "@"));
+      var t = el("div","t");
+      if(m.src) t.appendChild(el("span","tag src", m.src));
+      if(sec.mode==="sample") t.appendChild(el("span","tag sample","샘플"));
+      else if(m.t && sameDay(new Date(m.t), today)) t.appendChild(el("span","tag new","오늘"));
+      t.appendChild(document.createTextNode(m.subject || "(제목 없음)"));
+      row.appendChild(t);
+      row.appendChild(el("div","when", rel(m.t)));
+      var s = el("div","s");
+      s.appendChild(el("span","by", name+(m.snippet ? " · " : "")));
+      s.appendChild(document.createTextNode(m.snippet || ""));
+      row.appendChild(s);
+      li.appendChild(row); list.appendChild(li);
+    });
+    if(sec.mode==="live" && (sec.loadingMore || sec.token)) list.appendChild(el("li","more", sec.loadingMore ? "더 불러오는 중…" : "아래로 내리면 더 보입니다"));
+    else if(sec.mode==="live" && sec.items.length > 15) list.appendChild(el("li","more","마지막 메일입니다"));
+  }
+
+  function renderDrive(){
+    var sec = S.drive, list = $("driveList");
+    list.textContent = "";
+    list.classList.toggle("is-sample", sec.mode==="sample");
+    var why = sec.err ? "아래는 예시 파일입니다. 실제 드라이브가 아닙니다."
+                      : "아래는 예시 파일입니다. Google Drive 연결이 확인되면 실제 파일로 바뀝니다.";
+    renderNote($("driveNote"), sec, "Google Drive", why);
+    if(sec.mode==="loading"){
+      for(var i=0;i<4;i++){ var li=el("li","row"); var b=el("div"); b.style.gridColumn="1 / -1";
+        b.appendChild(el("div","skel")); var s2=el("div","skel"); s2.style.width="50%"; b.appendChild(s2); li.appendChild(b); list.appendChild(li); }
+      return;
+    }
+    if(sec.mode==="live" && !sec.items.length){
+      list.appendChild(el("li","empty","최근 파일이 없습니다."));
+      return;
+    }
+    sec.items.forEach(function(f){
+      var li = el("li");
+      var row = el(f.url ? "a" : "div","row");
+      if(f.url){ row.href = f.url; row.target = "_blank"; row.rel = "noopener"; }
+      row.appendChild(el("div","ic", KIND_IC[f.kind] || f.kind.slice(0,4)));
+      var t = el("div","t");
+      if(sec.mode==="sample") t.appendChild(el("span","tag sample","샘플"));
+      t.appendChild(document.createTextNode(f.title || "(이름 없음)"));
+      row.appendChild(t);
+      row.appendChild(el("div","when", rel(f.t)));
+      row.appendChild(el("div","s", f.kind+" · 소유자 "+(f.owner||"알 수 없음")+(f.viewed ? " · 마지막 열람 "+rel(f.viewed) : "")));
+      li.appendChild(row); list.appendChild(li);
+    });
+  }
+
+  function hm(t){ var d=new Date(t); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+  function dayLabel(t){
+    var d = new Date(t), today = new Date(), tm = new Date(); tm.setDate(tm.getDate()+1);
+    var base = (d.getMonth()+1)+"월 "+d.getDate()+"일 "+DOW[d.getDay()]+"요일";
+    if(sameDay(d,today)) return "오늘 · "+base;
+    if(sameDay(d,tm)) return "내일 · "+base;
+    return base;
+  }
+  function untilText(s){
+    var m = Math.round((s-Date.now())/60000);
+    if(m <= 0) return "";
+    if(m < 60) return m+"분 후";
+    if(sameDay(new Date(s), new Date())) return Math.floor(m/60)+"시간 후";
+    return "";
+  }
+
+  function renderCal(){
+    var sec = S.cal, list = $("calList");
+    list.textContent = "";
+    list.classList.toggle("is-sample", sec.mode==="sample");
+    var why = !CAL_TOOL ? "아래는 예시 일정입니다. Google Calendar 연결 작업이 끝나면 실제 일정으로 바뀝니다."
+            : sec.err ? "아래는 예시 일정입니다. 실제 캘린더가 아닙니다."
+                      : "아래는 예시 일정입니다. Google Calendar 연결이 확인되면 실제 일정으로 바뀝니다.";
+    renderNote($("calNote"), sec, "Google Calendar", why);
+    if(sec.mode==="loading"){
+      for(var i=0;i<3;i++){ var li=el("li","row"); var b=el("div"); b.style.gridColumn="1 / -1";
+        b.appendChild(el("div","skel")); var s2=el("div","skel"); s2.style.width="60%"; b.appendChild(s2); li.appendChild(b); list.appendChild(li); }
+      return;
+    }
+    var now = Date.now(), week = S.calRange!=="today";
+    var items = sec.items.slice().sort(function(a,b){ return (a.s||0)-(b.s||0); });
+    if(!items.length){
+      list.appendChild(el("li","empty", week ? "앞으로 "+(S.calRange==="month"?30:7)+"일 동안 일정이 없습니다." : "오늘 일정이 없습니다."));
+      return;
+    }
+    var todayStart = dayStart(0), lastDay = null;
+    items.forEach(function(ev){
+      if(week){
+        var key = new Date(Math.max(ev.s||todayStart, todayStart)); key.setHours(0,0,0,0);
+        if(lastDay !== key.getTime()){ lastDay = key.getTime(); list.appendChild(el("li","dayh", dayLabel(lastDay))); }
+      }
+      var li = el("li");
+      var live = ev.s <= now && now < ev.e, past = ev.e <= now;
+      var row = el(ev.url ? "a" : "div", "row ev"+(live && !ev.allDay ? " now" : "")+(past ? " past" : ""));
+      if(ev.url){ row.href = ev.url; row.target = "_blank"; row.rel = "noopener"; }
+      var tm = el("div","tm");
+      if(ev.allDay){ tm.textContent = "종일"; }
+      else { tm.appendChild(document.createTextNode(hm(ev.s))); tm.appendChild(el("small",null,"–"+hm(ev.e))); }
+      row.appendChild(tm);
+      var t = el("div","t");
+      if(sec.mode==="sample") t.appendChild(el("span","tag sample","샘플"));
+      if(live && !ev.allDay) t.appendChild(el("span","tag now","진행 중"));
+      t.appendChild(document.createTextNode(ev.title || "(제목 없음)"));
+      row.appendChild(t);
+      row.appendChild(el("div","when", ev.allDay ? "" : untilText(ev.s)));
+      row.appendChild(el("div","s", ev.loc || ""));
+      li.appendChild(row); list.appendChild(li);
+    });
+  }
+
+  function renderStats(){
+    var m = S.mail, d = S.drive, c = S.cal, today = new Date();
+    var calOk = c.mode!=="loading" && !(c.err && DENY[c.err.code] && c.mode!=="sample");
+    var tEnd = dayStart(1), nowT = Date.now();
+    var left = c.items.filter(function(x){ return x.e > nowT && x.s < tEnd; }).length;
+    $("stCal").textContent = calOk ? String(left) : "—";
+    $("stCalSub").textContent = c.mode==="sample" ? "샘플 값" : "지금 이후 끝나는 일정";
+    var mailOk = m.mode!=="loading" && !(m.err && DENY[m.err.code] && m.mode!=="sample");
+    var driveOk = d.mode!=="loading" && !(d.err && DENY[d.err.code] && d.mode!=="sample");
+    var mSample = m.mode==="sample", dSample = d.mode==="sample";
+
+    var inb = S.mailFilter==="inbox";
+    var unread = mSample ? 12 : (inb ? m.unreadN : m.count);
+    $("stUnread").textContent = !mailOk ? "—" : (unread==null ? "—" : (unread>=200 && !m.exact ? "200+" : unread.toLocaleString("ko-KR")));
+    $("stUnreadSub").textContent = mSample ? "샘플 값" : "받은편지함 · " + ({all:"전체", primary:"기본 탭", important:"중요", inbox:"안 읽은 전체"}[S.mailFilter]) + (S.hideAds ? " · 광고 제외" : "") + (m.exact ? "" : " · Gmail 추정치");
+
+    var todayN = m.items.filter(function(x){ return x.unread!==false && x.t && sameDay(new Date(x.t), today); }).length;
+    $("stToday").textContent = mailOk ? String(todayN) : "—";
+    $("stTodaySub").textContent = mSample ? "샘플 값" : "최근 "+m.items.length+"개 스레드 중";
+
+    var wk = Date.now()-7*24*H;
+    var dN = d.items.filter(function(x){ return x.t && x.t>=wk; }).length;
+    $("stDrive").textContent = driveOk ? String(dN) : "—";
+    $("stDriveSub").textContent = dSample ? "샘플 값" : "최근 "+d.items.length+"개 파일 중";
+
+    var st = $("status"), txt;
+    var secs = CAL_TOOL ? [m,d,c] : [m,d];     // 캘린더 연결 작업 전에는 상태 표시에서 뺀다
+    var live = secs.filter(function(x){ return x.mode==="live"; }).length;
+    var bad = secs.filter(function(x){ return x.err && DENY[x.err.code]; }).length;
+    if(live===secs.length && !bad){ st.dataset.s="live"; txt="실시간 연결됨"; }
+    else if(live>0){ st.dataset.s = bad ? "error" : "live"; txt="일부만 실시간 · 나머지는 "+(bad?"연결 필요":"불러오는 중"); }
+    else if(bad){ st.dataset.s="error"; txt="연결 필요 · 샘플 데이터 표시 중"; }
+    else if(S.mcp){ st.dataset.s="sample"; txt="실시간 데이터 불러오는 중"; }
+    else { st.dataset.s="sample"; txt="샘플 데이터 표시 중"; }
+    $("statusText").textContent = txt;
+  }
+
+  function renderMeta(){
+    var m = S.mail, d = S.drive;
+    if(S.mailSrc==="daum") m = S.dm; else if(S.mailSrc==="all") m = curMail();
+    $("mailMeta").textContent = m.at ? "업데이트 "+clock(m.at)+" ("+rel(m.at)+")" : (m.mode==="sample" ? "샘플" : "—");
+    $("driveMeta").textContent = d.at ? "업데이트 "+clock(d.at)+" ("+rel(d.at)+")" : (d.mode==="sample" ? "샘플" : "—");
+    var c = S.cal;
+    $("calMeta").textContent = c.at ? "업데이트 "+clock(c.at)+" ("+rel(c.at)+")" : (c.mode==="sample" ? "샘플" : "—");
+  }
+
+  function renderAll(){
+    var ids = ["calList","mailList","driveList"], st = ids.map(function(i){ return $(i).scrollTop; });
+    renderCal(); renderMail(); renderDrive(); renderStats(); renderMeta(); syncChips();
+    ids.forEach(function(i,k){ $(i).scrollTop = st[k]; });
+    maybeMoreMail();
+  }
+  /* 메일 더 불러오기: 목록 끝까지 내리면 다음 페이지(15개)를 이어 붙인다 */
+  function maybeMoreMail(){
+    var sec = S.mailSrc==="daum" ? S.dm : S.mail, l = $("mailList");
+    var nearEnd = l.scrollHeight - l.scrollTop - l.clientHeight < 120;
+    if(S.mailSrc==="all"){                    // 두 쪽 모두 다음 페이지를 이어 받는다
+      if(!nearEnd) return;
+      if(S.mail.mode==="live" && S.mail.token && !S.mail.loadingMore && (S.mail.more||[]).length < 135) loadMoreMail();
+      if(S.dm.mode==="live" && S.dm.token && !S.dm.loading && S.dm.items.length < 150) daumLoad("more");
+      return;
+    }
+    if(S.mailSrc==="daum"){ if(sec.mode==="live" && sec.token && !sec.loading && l.scrollHeight - l.scrollTop - l.clientHeight < 120 && sec.items.length < 150) daumLoad("more"); return; }
+    if(sec.mode==="live" && sec.token && !sec.loadingMore && l.scrollHeight - l.scrollTop - l.clientHeight < 120 && (sec.more||[]).length < 135) loadMoreMail();
+  }
+  function fetchUnreadN(){
+    if(!S.mcp) return;
+    S.mcp.callTool("Gmail","search_threads",{query: MAIL_Q.all + (S.hideAds ? AD_Q : ""), pageSize: 1}).then(function(res){
+      var n = res && res.payload && res.payload.resultCountEstimate; S.mail.unreadN = n!=null ? Number(n) : null; S.mail.exact = !!(res.payload && res.payload.resultCountExact);
+      renderStats();
+    }).catch(function(){});
+  }
+  /* ---------- Daum 메일 (맥 앱 IMAP, 읽기 전용) ---------- */
+  function daumLoad(how){    // how: undefined(처음부터) | "more"(이어서) | "keep"(지금 보이는 만큼 새로고침)
+    if(!window.jin) return;
+    var d = S.dm, more = how==="more", seq = ++d.seq, unreadOnly = S.mailFilter!=="inbox";
+    var limit = how==="keep" ? Math.min(Math.max(15, d.items.length), 50) : 15, off = more ? d.items.length : 0;
+    if(!more && how!=="keep") d.mode = "loading";
+    d.loading = true; d.loadingMore = more;
+    renderAll();
+    window.jin.call("daumList", {unread: unreadOnly, limit: limit, offset: off}).then(function(r){
+      if(seq!==d.seq) return;
+      var items = (r.items||[]).map(function(m){ return {unread: m.unread, from: m.from, subject: m.subject, snippet: "", t: m.t||null, url: "https://mail.daum.net/"}; });
+      d.items = more ? d.items.concat(items) : items;
+      d.count = r.unreadTotal; d.token = (off + items.length) < r.total; d.mode = "live"; d.err = null; d.at = Date.now();
+    }).catch(function(e){
+      if(seq!==d.seq) return;
+      d.err = {code: "upstream_error", message: (e && e.message) || "Daum 메일을 가져오지 못했습니다.", native: true};
+      if(d.mode==="loading") d.mode = "live";
+    }).then(function(){ if(seq===d.seq){ d.loading = false; d.loadingMore = false; renderAll(); } });
+  }
+  function loadMoreMail(){
+    var sec = S.mail; if(!S.mcp || !sec.token || sec.loadingMore || !sec.input) return;
+    sec.loadingMore = true; renderAll();
+    var q = sec.input.query;
+    var inp = {query: q, pageSize: 15, pageToken: sec.token};
+    S.mcp.callTool("Gmail","search_threads", inp).then(function(res){
+      if(S.mail.input.query !== q) return;
+      var r = parseMail(res && res.payload), seen = {};
+      S.mail.items.forEach(function(m){ if(m.url) seen[m.url] = 1; });
+      var add = r.items.filter(function(m){ return !m.url || !seen[m.url]; });
+      S.mail.more = (S.mail.more||[]).concat(add); S.mail.items = S.mail.items.concat(add); S.mail.token = r.token;
+    }).catch(function(){ S.mail.token = null; }).then(function(){ S.mail.loadingMore = false; renderAll(); });
+  }
+
+  function syncChips(){
+    ["all","primary","important","inbox"].forEach(function(f){ $("mf-"+f).setAttribute("aria-pressed", String(S.mailFilter===f)); });
+    $("mf-ads").setAttribute("aria-pressed", String(S.hideAds));
+    var dq = S.mailSrc==="daum", mg = S.mailSrc==="all", inb2 = S.mailFilter==="inbox";
+    $("mailH").textContent = (dq ? "Daum 메일" : mg ? "통합 받은편지함" : "받은편지함") + (inb2 ? "" : " · 읽지 않음");
+    $("mailBadge").textContent = dq ? "Daum" : mg ? "Gmail + Daum" : "Gmail";
+    $("mf-daum").setAttribute("aria-pressed", String(dq));
+    $("mf-merge").setAttribute("aria-pressed", String(mg));
+    $("mf-gmail").setAttribute("aria-pressed", String(!dq && !mg));
+    ["mf-primary","mf-important"].forEach(function(i){ $(i).hidden = dq || mg; });
+    $("mf-ads").hidden = dq;
+    $("dmSet").hidden = !(dq || mg) || !window.jin;
+    if(window.jin){ $("mailReadAll").hidden = dq || mg; $("mailNew").hidden = dq; }
+    $("mailMore").hidden = !window.jin || ($("mailReadAll").hidden && $("dmSet").hidden);
+    if(dq || mg){ $("mf-all").setAttribute("aria-pressed", String(!inb2)); ["primary","important"].forEach(function(f){ $("mf-"+f).setAttribute("aria-pressed","false"); }); }
+    $("df-recency").setAttribute("aria-pressed", String(S.driveOrder==="recency"));
+    $("df-mine").setAttribute("aria-pressed", String(S.driveOrder==="lastModifiedByMe"));
+    $("cf-today").setAttribute("aria-pressed", String(S.calRange==="today"));
+    $("cf-week").setAttribute("aria-pressed", String(S.calRange==="week"));
+    $("cf-month").setAttribute("aria-pressed", String(S.calRange==="month"));
+    var off = !S.mcp;
+    $("mailRefresh").disabled = off; $("driveRefresh").disabled = off; $("calRefresh").disabled = !CAL_READY();
+  }
+
+  /* ---------- 파싱 ---------- */
+  function parseMail(p){
+    p = p || {};
+    var threads = Array.isArray(p.threads) ? p.threads : [];
+    if(S.hideAds) threads = threads.filter(function(th){
+      var ms = Array.isArray(th.messages) ? th.messages : [];
+      return !ms.some(function(m){ return AD_RE.test(clean(m.subject)); });
+    });
+    var items = threads.map(function(th){
+      var msgs = Array.isArray(th.messages) ? th.messages : [];
+      var last = msgs[msgs.length-1] || {};
+      var t = last.internalDate ? Number(last.internalDate) : (last.date ? Date.parse(last.date) : null);
+      var unread = S.mailFilter!=="inbox" || msgs.some(function(m){ return Array.isArray(m.labelIds) && m.labelIds.indexOf("UNREAD")>=0; });
+      return {unread: unread, from: senderName(last.sender), subject: clean(last.subject), snippet: clean(last.snippet), t: isNaN(t)?null:t, url: th.viewUrl || last.viewUrl || null};
+    });
+    var est = p.resultCountEstimate!=null ? Number(p.resultCountEstimate) : items.length;
+    return {items: items, token: p.nextPageToken || null, count: isNaN(est) ? items.length : est, exact: p.resultCountExact === true};   // exact: 진의 데스크 앱이 끝까지 센 정확한 수
+  }
+  function parseDrive(p){
+    p = p || {};
+    var files = Array.isArray(p.files) ? p.files : [];
+    return files.map(function(f){
+      var t = f.modifiedTime ? Date.parse(f.modifiedTime) : null;
+      var v = f.viewedByMeTime ? Date.parse(f.viewedByMeTime) : null;
+      var owner = f.owner ? String(f.owner).split("@")[0] : "";
+      return {title: clean(f.title), kind: kindOf(f.mimeType, f.fileExtension), owner: owner, t: isNaN(t)?null:t, viewed: isNaN(v)?null:v, url: f.viewUrl || null};
+    });
+  }
+
+  function evTime(v){
+    if(!v) return null;
+    if(typeof v === "string") v = /^\d{4}-\d{2}-\d{2}$/.test(v) ? {date:v} : {dateTime:v};
+    if(v.dateTime){ var t = Date.parse(v.dateTime); return isNaN(t) ? null : t; }
+    // 종일 일정: date가 "2026-06-11T00:00:00Z" 형태로 온다 → 앞 10자(날짜)만 현지 자정으로 해석
+    if(v.date){ var p = String(v.date).slice(0,10).split("-"); var d = new Date(+p[0], +p[1]-1, +p[2]).getTime(); return isNaN(d) ? null : d; }
+    return null;
+  }
+  function parseCal(p){
+    p = p || {};
+    var list = Array.isArray(p.events) ? p.events : [];   // 일정이 없으면 events 키 자체가 없다
+    return list.filter(function(e){ return e && e.status!=="cancelled"; }).map(function(e){
+      var allDay = !!(e.start && typeof e.start==="object" && e.start.date && !e.start.dateTime);
+      var s = evTime(e.start), en = evTime(e.end);
+      return {title: clean(e.summary || e.title), loc: clean(e.location), s: s, e: en==null ? s : en, allDay: allDay, url: e.htmlLink || e.viewUrl || null};
+    }).filter(function(x){ return x.s!=null; });
+  }
+
+  /* ---------- 실시간 구독 ---------- */
+  function stampOf(result){ return (result && result.cache && result.cache.storedAt) ? result.cache.storedAt : Date.now(); }
+
+  function onError(key, server, tool, input, err){
+    var sec = S[key];
+    sec.err = err || {code:"upstream_error"};
+    if(DENY[sec.err.code]){
+      // 권한/연결 문제: 실데이터는 거두고 샘플로 대체 (샘플로 표시)
+      sec.mode = "sample";
+      sec.items = sampleFor(key);
+      sec.count = null; sec.at = null;
+    } else if(sec.mode==="loading"){
+      sec.mode = "sample";
+      sec.items = sampleFor(key);
+    }
+    if(sec.err.retryable && !sec.retried && S.mcp){
+      sec.retried = true;
+      var wait = Math.min(sec.err.retryAfterMs || 0, 60000) + 1500 + Math.random()*2500;
+      setTimeout(function(){ S.mcp.invalidate(server, tool, input).catch(function(){}); }, wait);
+    }
+    renderAll();
+  }
+
+  function watchMail(){
+    if(!S.mcp) return;
+    if(S.mail.unsub) { S.mail.unsub(); S.mail.unsub = null; }
+    var input = {query: mailQuery(), pageSize: 15};
+    S.mail.mode = S.mail.mode==="live" ? "live" : "loading";
+    S.mail.more = []; S.mail.token = null; S.mail.loadingMore = false;
+    S.mail.err = null; S.mail.retried = false;
+    renderAll();
+    S.mail.unsub = S.mcp.watchTool("Gmail", "search_threads", input, function(ev){
+      if(ev.type==="data"){
+        var r = parseMail(ev.result && ev.result.payload);
+        var more = S.mail.more || [], seen = {};
+        r.items.forEach(function(m){ if(m.url) seen[m.url] = 1; });
+        more = more.filter(function(m){ return !m.url || !seen[m.url]; });
+        S.mail.more = more; if(!more.length) S.mail.token = r.token;
+        S.mail.items = r.items.concat(more); S.mail.count = r.count;
+        if(S.mailFilter==="inbox") fetchUnreadN(); S.mail.exact = r.exact; S.mail.mode = "live";
+        S.mail.err = null; S.mail.retried = false; S.mail.at = stampOf(ev.result);
+        renderAll();
+      } else onError("mail","Gmail","search_threads",input, ev.error);
+    }, {refetchInterval: MAIL_EVERY});
+    S.mail.input = input;
+  }
+
+  function watchDrive(){
+    if(!S.mcp) return;
+    if(S.drive.unsub) { S.drive.unsub(); S.drive.unsub = null; }
+    var input = {pageSize: 12, orderBy: S.driveOrder, excludeContentSnippets: true};
+    S.drive.mode = S.drive.mode==="live" ? "live" : "loading";
+    S.drive.err = null; S.drive.retried = false;
+    renderAll();
+    S.drive.unsub = S.mcp.watchTool("Google Drive", "list_recent_files", input, function(ev){
+      if(ev.type==="data"){
+        S.drive.items = parseDrive(ev.result && ev.result.payload); S.drive.mode = "live";
+        S.drive.err = null; S.drive.retried = false; S.drive.at = stampOf(ev.result);
+        renderAll();
+      } else onError("drive","Google Drive","list_recent_files",input, ev.error);
+    }, {refetchInterval: DRIVE_EVERY});
+    S.drive.input = input;
+  }
+
+  function watchCal(){
+    if(!CAL_READY()) return;
+    var input = calInput(calRange(S.calRange));
+    if(!input) return;
+    if(S.cal.unsub) { S.cal.unsub(); S.cal.unsub = null; }
+    S.cal.mode = S.cal.mode==="live" ? "live" : "loading";
+    S.cal.err = null; S.cal.retried = false;
+    renderAll();
+    S.cal.unsub = S.mcp.watchTool(CAL_SERVER, CAL_TOOL, input, function(ev){
+      if(ev.type==="data"){
+        S.cal.items = parseCal(ev.result && ev.result.payload); S.cal.mode = "live";
+        S.cal.err = null; S.cal.retried = false; S.cal.at = stampOf(ev.result);
+        renderAll();
+      } else onError("cal", CAL_SERVER, CAL_TOOL, input, ev.error);
+    }, {refetchInterval: CAL_EVERY});
+    S.cal.input = input;
+  }
+
+  /* ---------- 이벤트 ---------- */
+  $("mf-ads").addEventListener("click", function(){
+    S.hideAds = !S.hideAds; save("jd.hideAds", S.hideAds ? "1" : "0"); syncAdsPref();
+    if(S.mcp){ S.mail.mode = "loading"; watchMail(); } else renderAll();
+  });
+  document.querySelectorAll(".mail .chip[data-f]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var f = b.dataset.f; if(f===S.mailFilter) return;
+      S.mailFilter = f; save("jd.mailFilter", f);
+      if(S.mailSrc==="daum"){ daumLoad(); if(S.mcp) watchMail(); return; }      // Gmail 쪽도 같은 필터로 맞춰 둔다(통합으로 넘어갈 때 어긋나지 않게)
+      if(S.mailSrc==="all"){ daumLoad(); if(S.mcp){ S.mail.mode = "loading"; watchMail(); } else renderAll(); return; }
+      if(S.mcp){ S.mail.mode = "loading"; watchMail(); } else renderAll();
+    });
+  });
+  document.querySelectorAll(".drive .chip").forEach(function(b){
+    b.addEventListener("click", function(){
+      var f = b.dataset.f; if(f===S.driveOrder) return;
+      S.driveOrder = f; save("jd.driveOrder", f);
+      if(S.mcp){ S.drive.mode = "loading"; watchDrive(); } else renderAll();
+    });
+  });
+  document.querySelectorAll(".cal .chip").forEach(function(b){
+    b.addEventListener("click", function(){
+      var f = b.dataset.f; if(f===S.calRange) return;
+      S.calRange = f; save("jd.calRange", f);
+      if(CAL_READY() && S.cal.mode!=="sample"){ S.cal.mode = "loading"; watchCal(); }
+      else { S.cal.items = sampleCal(f); renderAll(); }
+    });
+  });
+  function manualRefresh(btn, server, tool, key){
+    if(!S.mcp) return;
+    btn.disabled = true; btn.textContent = "불러오는 중…";
+    S[key].retried = false;
+    S.mcp.invalidate(server, tool).catch(function(){
+      // 오래된 셸: 구독을 다시 걸어 새로 가져온다
+      if(key==="mail") watchMail(); else if(key==="drive") watchDrive(); else watchCal();
+    }).then(function(){ setTimeout(function(){ btn.disabled = false; btn.textContent = "새로고침"; }, 1200); });
+  }
+  $("mailRefresh").addEventListener("click", function(){ if(S.mailSrc==="daum"){ daumLoad("keep"); return; } if(S.mailSrc==="all") daumLoad("keep"); manualRefresh(this, "Gmail", "search_threads", "mail"); });
+  $("driveRefresh").addEventListener("click", function(){ manualRefresh(this, "Google Drive", "list_recent_files", "drive"); });
+  $("calRefresh").addEventListener("click", function(){ if(CAL_READY()) manualRefresh(this, CAL_SERVER, CAL_TOOL, "cal"); });
+
+  /* ---------- 일정 추가 · 메일 쓰기 (맥 앱에서만: window.jin 필요) ---------- */
+  if(window.jin && window.jin.google){
+    $("calAdd").hidden = false; $("mailNew").hidden = false;
+    var pad = function(n){ return String(n).padStart(2,"0"); };
+    var ymd = function(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+    var apiErr = function(e){ return (e && (e.message || e.error)) ? String(e.message || e.error) : "실패했습니다. 잠시 뒤 다시 시도해 주세요."; };
+    var needScope = function(scopeKey){
+      return window.jin.google.status().then(function(st){
+        if(st && st[scopeKey]===false) throw new Error("권한이 부족합니다. 메뉴에서 Google 연결 해제 후 다시 연결해 주세요.");
+      }).catch(function(e){ if(e && /권한/.test(e.message||"")) throw e; });
+    };
+    var evDlg = $("evDlg"), mailDlg = $("mailDlg");
+    $("evAllDay").addEventListener("change", function(){ $("evTimes").style.display = this.checked ? "none" : ""; });
+    $("calAdd").addEventListener("click", function(){
+      $("evForm").reset(); $("evErr").textContent = ""; $("evTimes").style.display = "";
+      $("evDate").value = ymd(new Date());
+      var h = new Date().getHours()+1; if(h>22) h = 22;
+      $("evStart").value = pad(h)+":00"; $("evEnd").value = pad(h+1)+":00";
+      evDlg.showModal(); $("evTitle").focus();
+    });
+    $("evCancel").addEventListener("click", function(){ evDlg.close(); });
+    $("evForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var title = $("evTitle").value.trim(), date = $("evDate").value, all = $("evAllDay").checked, loc = $("evLoc").value.trim();
+      var ok = $("evOk"), err = $("evErr"); err.textContent = "";
+      if(!title || !date){ err.textContent = "제목과 날짜를 입력해 주세요."; return; }
+      var body = {summary: title};
+      if(loc) body.location = loc;
+      if(all){
+        var p = date.split("-").map(Number), nx = new Date(p[0], p[1]-1, p[2]+1);
+        body.start = {date: date}; body.end = {date: ymd(nx)};
+        body.transparency = "transparent";
+        body.reminders = {useDefault: false, overrides: [{method:"popup", minutes:900}]};
+      } else {
+        var s = $("evStart").value, en = $("evEnd").value;
+        if(!s || !en || en <= s){ err.textContent = "끝나는 시각이 시작보다 늦어야 합니다."; return; }
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        body.start = {dateTime: date+"T"+s+":00", timeZone: tz}; body.end = {dateTime: date+"T"+en+":00", timeZone: tz};
+        body.reminders = {useDefault: false, overrides: [{method:"popup", minutes:60}]};
+      }
+      ok.disabled = true; ok.textContent = "추가 중…";
+      needScope("canWriteCalendar").then(function(){
+        return window.jin.google.api("https://www.googleapis.com/calendar/v3/calendars/primary/events", {method:"POST", body: body});
+      }).then(function(){
+        evDlg.close();
+        window.jin.notify("일정 추가됨", title);
+        try{ window.jin.call("refreshWidget", {}); }catch(_){}
+        if(S.mcp && CAL_READY()) S.mcp.invalidate(CAL_SERVER, CAL_TOOL).catch(function(){ watchCal(); });
+      }).catch(function(x){ err.textContent = apiErr(x); })
+        .then(function(){ ok.disabled = false; ok.textContent = "추가"; });
+    });
+
+    var b64 = function(s){ return btoa(unescape(encodeURIComponent(s))); };
+    $("mf-daum").hidden = false; $("mf-merge").hidden = false; $("mf-gmail").hidden = false; $("mailNew").hidden = false; $("mailReadAll").hidden = false;
+    var dmDlg = $("dmDlg");
+    var openDaumDlg = function(st){
+      $("dmErr").textContent = ""; $("dmPass").value = ""; $("dmUser").value = (st && st.user) || "";
+      $("dmOff").hidden = !(st && st.configured); $("dmPass").required = !(st && st.configured);
+      $("dmPass").placeholder = st && st.configured ? "바꾸려면 새 앱 비밀번호 (비워 두면 유지)" : "Daum에서 만든 앱 비밀번호";
+      dmDlg.showModal(); (st && st.configured ? $("dmPass") : $("dmUser")).focus();
+    };
+    var goDaum = function(){ S.mailSrc = "daum"; save("jd.mailSrc","daum"); if(!S.dm.items.length) S.dm.mode = "loading"; daumLoad(); };
+    var goMerge = function(){
+      S.mailSrc = "all"; save("jd.mailSrc","all");
+      if(S.mailFilter==="primary" || S.mailFilter==="important"){ S.mailFilter = "all"; save("jd.mailFilter","all"); if(S.mcp){ S.mail.mode = "loading"; watchMail(); } }
+      if(!S.dm.items.length) S.dm.mode = "loading"; daumLoad();
+    };
+    var pickSrc = function(want, go){
+      if(S.mailSrc===want){ S.mailSrc = "gmail"; save("jd.mailSrc","gmail"); renderAll(); return; }
+      window.jin.call("daumStatus", {}).then(function(st){ if(st && st.configured) go(); else openDaumDlg(st); }).catch(function(x){ alert(apiErr(x)); });
+    };
+    $("mf-daum").addEventListener("click", function(){ if(S.mailSrc!=="daum") pickSrc("daum", goDaum); });
+    $("mf-merge").addEventListener("click", function(){ if(S.mailSrc!=="all") pickSrc("all", goMerge); });
+    $("mf-gmail").addEventListener("click", function(){ if(S.mailSrc!=="gmail"){ S.mailSrc = "gmail"; save("jd.mailSrc","gmail"); renderAll(); } });
+    var mailMenu = $("mailMenu");
+    $("mailMore").addEventListener("click", function(e){ e.stopPropagation(); mailMenu.hidden = !mailMenu.hidden; this.setAttribute("aria-expanded", String(!mailMenu.hidden)); });
+    document.addEventListener("click", function(){ mailMenu.hidden = true; $("mailMore").setAttribute("aria-expanded","false"); });
+    $("dmSet").addEventListener("click", function(){ window.jin.call("daumStatus", {}).then(openDaumDlg); });
+    $("dmCancel").addEventListener("click", function(){ $("dmPass").value = ""; dmDlg.close(); });
+    $("dmOff").addEventListener("click", function(){
+      if(!confirm("Daum 메일 연결을 해제할까요? 저장된 앱 비밀번호가 키체인에서 지워집니다.")) return;
+      window.jin.call("daumClear", {}).then(function(){ S.dm.items = []; S.dm.seq++; S.mailSrc = "gmail"; save("jd.mailSrc","gmail"); dmDlg.close(); renderAll(); });
+    });
+    $("dmForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var ok = $("dmOk"), err = $("dmErr"), pw = $("dmPass").value; err.textContent = "";
+      if(!pw){ dmDlg.close(); goDaum(); return; }      // 이미 연결된 상태에서 비밀번호를 비워 둠 = 주소만 확인
+      ok.disabled = true; ok.textContent = "로그인 확인 중…";
+      window.jin.call("daumSave", {user: $("dmUser").value, password: pw}).then(function(){
+        $("dmPass").value = ""; dmDlg.close(); goDaum();
+      }).catch(function(x){ err.textContent = apiErr(x); })
+        .then(function(){ ok.disabled = false; ok.textContent = "연결"; });
+    });
+    setInterval(function(){ if((S.mailSrc==="daum" || S.mailSrc==="all") && !S.dm.loading && !document.hidden) daumLoad("keep"); }, MAIL_EVERY);
+    var want0 = load("jd.mailSrc","all");
+    if(want0==="daum" || want0==="all") window.jin.call("daumStatus", {}).then(function(st){ if(st && st.configured) (want0==="all" ? goMerge : goDaum)(); }).catch(function(){});
+    $("mailReadAll").addEventListener("click", function(){
+      var btn = this, q = (S.mailFilter==="inbox" ? MAIL_Q.all : MAIL_Q[S.mailFilter]) + (S.hideAds ? AD_Q : "");
+      btn.disabled = true; btn.textContent = "확인 중…";
+      var done = function(){ btn.disabled = false; btn.textContent = "전체 읽음"; };
+      needScope("canModify").then(function(){ return window.jin.call("gmailMarkRead", {query: q, dryRun: true}); }).then(function(r){
+        var n = r && r.messages || 0;
+        if(!n){ alert("읽지 않은 메일이 없습니다."); return; }
+        if(!confirm("지금 목록 기준 안 읽은 메일 "+n.toLocaleString("ko-KR")+"통을 모두 읽음으로 표시할까요?\n\n" + (S.hideAds ? "숨겨진 광고 메일은 그대로 둡니다.\n" : "") + "메일은 삭제되지 않고, 되돌릴 수 있게 백업을 저장합니다.")) return;
+        btn.textContent = "처리 중…";
+        return window.jin.call("gmailMarkRead", {query: q, dryRun: false}).then(function(r2){
+          window.jin.notify("전체 읽음 처리", (r2.messages||0).toLocaleString("ko-KR")+"통을 읽음으로 표시했습니다");
+          try{ window.jin.call("refreshWidget", {}); }catch(_){}
+          if(S.mcp) S.mcp.invalidate("Gmail","search_threads").catch(function(){ watchMail(); });
+        });
+      }).catch(function(x){ alert(apiErr(x)); }).then(done);
+    });
+    $("mailNew").addEventListener("click", function(){
+      $("mailForm").reset(); $("mErr").textContent = ""; mailDlg.showModal(); $("mTo").focus();
+    });
+    $("mCancel").addEventListener("click", function(){
+      if(($("mBody").value.trim() || $("mSubj").value.trim()) && !confirm("작성 중인 메일을 버릴까요?")) return;
+      mailDlg.close();
+    });
+    $("mailForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var to = $("mTo").value.split(/[,;]/).map(function(x){ return x.trim(); }).filter(Boolean);
+      var subj = $("mSubj").value.trim(), text = $("mBody").value, ok = $("mOk"), err = $("mErr"); err.textContent = "";
+      if(!to.length || to.some(function(a){ return !/^[^\s@<>,]+@[^\s@<>,]+\.[^\s@<>,]+$/.test(a); })){ err.textContent = "받는 사람 주소를 확인해 주세요."; return; }
+      if(/[\r\n]/.test(subj)){ err.textContent = "제목에 줄바꿈은 쓸 수 없습니다."; return; }
+      if(!subj && !text.trim()){ err.textContent = "제목이나 내용을 입력해 주세요."; return; }
+      if(!confirm("이 메일을 보낼까요?\n\n받는 사람: "+to.join(", ")+"\n제목: "+(subj||"(제목 없음)")+"\n\n"+(text.length>120 ? text.slice(0,120)+"…" : text))) return;
+      var mime = ["To: "+to.join(", "), "Subject: =?UTF-8?B?"+b64(subj)+"?=", "MIME-Version: 1.0",
+        "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64(text.replace(/\r?\n/g,"\r\n"))].join("\r\n");
+      var raw = b64(mime).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+      ok.disabled = true; ok.textContent = "보내는 중…";
+      needScope("canModify").then(function(){
+        return window.jin.google.api("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {method:"POST", body:{raw: raw}});
+      }).then(function(){
+        mailDlg.close();
+        window.jin.notify("메일 보냄", to.join(", "));
+      }).catch(function(x){ err.textContent = apiErr(x); })
+        .then(function(){ ok.disabled = false; ok.textContent = "보내기"; });
+    });
+  }
+
+  $("mailList").addEventListener("scroll", maybeMoreMail);
+
+  /* ---------- 구독 · 예산 (맥 앱 전용: data/subscriptions.json) ----------
+     항목: {name, amount, cur:"KRW"|"USD", day(매월 결제일), status:"active"|"ending"|"failing"|"paused"|"unknown", endDate, warn, note}
+     active만 월 합계에 넣는다. 파일이 없으면 패널을 숨긴다. */
+  var BUD = {items: null, at: null};
+  function budRate(){ var v = Number(load("jd.usdRate","1400")); return v>0 ? v : 1400; }
+  function budGoal(){ var v = Number(load("jd.budget","0")); return v>0 ? v : 0; }
+  function won(n){ return "₩" + Math.round(n).toLocaleString("ko-KR"); }
+  function amt(it){ return it.amount==null ? "금액 미확인" : (it.cur==="USD" ? "$"+Number(it.amount).toFixed(2) : won(it.amount)); }
+  function toKRW(it){ return it.cur==="USD" ? it.amount*budRate() : it.amount; }
+  function budNext(it, now){
+    if(it.status==="ending" || it.status==="paused") return it.endDate ? new Date(it.endDate+"T00:00:00") : null;
+    if(!it.day) return null;
+    var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    for(var k=0;k<3;k++){
+      var y = t0.getFullYear(), m = t0.getMonth()+k, dim = new Date(y, m+1, 0).getDate();
+      var d = new Date(y, m, Math.min(it.day, dim));
+      if(d >= t0) return d;
+    }
+    return null;
+  }
+  function dLabel(d, now){
+    var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()), n = Math.round((d - t0)/86400000);
+    return (d.getMonth()+1)+"/"+d.getDate()+" ("+(n===0 ? "오늘" : "D-"+n)+")";
+  }
+  function renderBud(){
+    var panel = $("budPanel"), items = BUD.items;
+    if(!items){ panel.hidden = true; return; }
+    panel.hidden = false;
+    var now = new Date();
+    var act = items.filter(function(x){ return x.status==="active" && x.amount!=null; });
+    var krw = 0, usd = 0, left = 0;
+    act.forEach(function(x){
+      if(x.cur==="USD") usd += x.amount; else krw += x.amount;
+      var d = budNext(x, now);
+      if(d && d - now < 30*86400000) left += toKRW(x);
+    });
+    var total = krw + usd*budRate(), goal = budGoal();
+    var probs = items.filter(function(x){ return x.status==="failing" || x.status==="paused" || x.warn; });
+
+    var sum = $("budSum"); sum.textContent = "";
+    var b1 = el("div"); b1.appendChild(el("div","bk","월 고정 구독료")); b1.appendChild(el("div","bv", won(total)));
+    var sub = el("div","bs", "원화 "+won(krw)+(usd ? " + 달러 $"+usd.toFixed(2)+" (환율 " : ""));
+    if(usd){ var rb = el("button", null, budRate().toLocaleString("ko-KR")+"원 가정"); rb.type = "button"; rb.title = "눌러서 환율 바꾸기";
+      rb.addEventListener("click", function(){ var v = prompt("달러 환율(원)", String(budRate())); if(v && Number(v)>0){ save("jd.usdRate", String(Number(v))); renderBud(); } });
+      sub.appendChild(rb); sub.appendChild(document.createTextNode(")")); }
+    b1.appendChild(sub); sum.appendChild(b1);
+    var b2 = el("div"); b2.appendChild(el("div","bk","앞으로 30일 결제 예정")); b2.appendChild(el("div","bv", won(left))); sum.appendChild(b2);
+    var b3 = el("div"); b3.appendChild(el("div","bk","월 예산"));
+    if(goal){
+      var pct = total/goal*100;
+      b3.appendChild(el("div","bv", won(goal)));
+      var bar = el("div","bar"), fill = el("i", pct>100 ? "over" : pct>80 ? "warn" : ""); fill.style.width = Math.min(pct,100)+"%"; bar.appendChild(fill); b3.appendChild(bar);
+      b3.appendChild(el("div","bs", "구독료가 예산의 "+Math.round(pct)+"% · "+(goal>=total ? "여유 "+won(goal-total) : "초과 "+won(total-goal))));
+    } else b3.appendChild(el("div","bs","아직 정하지 않았어요"));
+    var eb = el("button", "refresh", goal ? "예산 바꾸기" : "예산 정하기"); eb.type = "button"; eb.style.marginTop = "8px";
+    eb.addEventListener("click", function(){ var v = prompt("한 달 구독 예산(원)", goal ? String(goal) : ""); if(v!==null){ save("jd.budget", String(Math.max(0, Number(v.replace(/[^0-9.]/g,"")) || 0))); renderBud(); } });
+    b3.appendChild(eb); sum.appendChild(b3);
+    if(probs.length){
+      var b4 = el("div","bs"); b4.appendChild(el("span","flag","확인 필요 "+probs.length+"건")); b4.appendChild(document.createTextNode(" · "+probs.map(function(x){ return x.name; }).join(", "))); sum.appendChild(b4);
+    }
+
+    var rank = {active:0, unknown:1, ending:2, paused:3, failing:4};
+    var rows = items.slice().sort(function(a,b){
+      var ra = rank[a.status]||0, rb2 = rank[b.status]||0; if(ra!==rb2) return ra-rb2;
+      var da = budNext(a,now), db = budNext(b,now); return (da?da.getTime():9e15)-(db?db.getTime():9e15);
+    });
+    var list = $("budList"); list.textContent = "";
+    rows.forEach(function(it){
+      var d = budNext(it, now), st = it.status || "active";
+      var li = el("li", "brow "+(it.warn && st==="active" ? "warn" : st)+(st==="active" ? "" : " off"));
+      li.appendChild(el("span","dot")); li.appendChild(el("div","bn", it.name)); li.appendChild(el("div","ba", amt(it)+(it.amount!=null && st==="active" ? " /월" : "")));
+      var bd = el("div","bd"), parts = [];
+      if(st==="ending") parts.push("만료 "+(d ? dLabel(d, now) : "예정"));
+      else if(st==="paused") parts.push("일시정지 · 재등록 마감 "+(d ? dLabel(d, now) : ""));
+      else if(st==="failing") parts.push("결제 실패 중");
+      else if(d) parts.push("다음 결제 "+dLabel(d, now));
+      if(it.warn) { var f = el("span","flag", it.warn); bd.appendChild(document.createTextNode(parts.join(" · ")+(parts.length ? " · " : ""))); bd.appendChild(f); if(it.note) bd.appendChild(document.createTextNode(" · "+it.note)); }
+      else { if(it.note) parts.push(it.note); bd.textContent = parts.join(" · "); }
+      li.appendChild(bd); list.appendChild(li);
+    });
+    $("budMeta").textContent = BUD.at ? "확인 "+BUD.at.slice(5).replace("-","/") : "—";
+  }
+  function budLoad(){
+    if(!window.jin || !window.jin.readFile) return;
+    window.jin.readFile("subscriptions.json").then(function(t){
+      var j = JSON.parse(t); BUD.items = Array.isArray(j.items) ? j.items : []; BUD.at = j.updated || null; renderBud();
+    }).catch(function(){ BUD.items = null; renderBud(); });
+  }
+
+  /* ---------- 시작 ---------- */
+  $("today").textContent = todayLabel();
+  renderAll();
+  budLoad(); setInterval(budLoad, 60000);
+  syncAdsPref();
+  setInterval(function(){ $("today").textContent = todayLabel(); renderMeta(); renderCal(); renderStats(); renderBud(); }, 30000);
+
+  var useP = (window.claude && typeof window.claude.use==="function") ? window.claude.use("mcp") : Promise.resolve(null);
+  Promise.resolve(useP).catch(function(){ return null; }).then(function(mcp){
+    if(!mcp){ S.mcp = null; renderAll(); $("statusText").textContent = "샘플 데이터 표시 중 · 이 화면에서는 커넥터를 쓸 수 없음"; return; }
+    S.mcp = mcp;
+    watchMail();
+    watchDrive();
+    watchCal();
+  });
+})();
+</script>

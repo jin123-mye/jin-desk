@@ -1,0 +1,19 @@
+# 개인 인계 문서 (계정·일정 등 개인 정보 포함) — 공개하지 않음
+CLAUDE.md
+# 앱 데이터 폴더 바로가기, 비밀 파일
+pages
+google_client.json
+google_token.json
+# 빌드 부산물
+*.iconset/
+.DS_Store
+# 비밀값·인증서 (혹시 이 폴더에 두더라도 올라가지 않게)
+*.json
+.env
+.env.*
+*.p12
+*.cer
+*.pem
+*.key
+*.mobileprovision
+*.provisionprofile
