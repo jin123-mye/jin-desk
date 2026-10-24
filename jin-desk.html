@@ -10,6 +10,7 @@
   --drive:#17805F; --drive-soft:#E2F3EC;
   --cal:#6A4BC4; --cal-soft:#EEE9FB;
   --bud:#0F7B8A; --bud-soft:#E0F2F5;
+  --nas:#B4531F; --nas-soft:#F9E8DC;
   --sample:#9A5B0B; --sample-soft:#FBEFD9;
   --bad:#B4322A; --bad-soft:#FBE7E5;
   --ok:#1C8A4C;
@@ -25,6 +26,7 @@
     --drive:#5FCB9F; --drive-soft:#16302A;
     --cal:#B9A6F7; --cal-soft:#2A2344;
     --bud:#62CBD9; --bud-soft:#14303A;
+    --nas:#F0A07A; --nas-soft:#3B2519;
     --sample:#EDB45C; --sample-soft:#3A2B14;
     --bad:#F08D84; --bad-soft:#3B1D1B;
     --ok:#5FD08F;
@@ -38,6 +40,7 @@
   --drive:#5FCB9F; --drive-soft:#16302A;
   --cal:#B9A6F7; --cal-soft:#2A2344;
   --bud:#62CBD9; --bud-soft:#14303A;
+  --nas:#F0A07A; --nas-soft:#3B2519;
   --sample:#EDB45C; --sample-soft:#3A2B14;
   --bad:#F08D84; --bad-soft:#3B1D1B;
   --ok:#5FD08F;
@@ -184,6 +187,17 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
 .brow .bd{grid-column:2 / span 2;font-size:12.5px;color:var(--muted)}
 .brow.off .bn,.brow.off .ba{color:var(--muted)}
 .brow .flag{color:var(--bad);font-weight:600}
+.nas .badge-src{background:var(--nas-soft);color:var(--nas)}
+.nas .row .ic{background:var(--nas-soft);color:var(--nas)}
+.nas .bar i{background:var(--nas)} .nas .bar i.warn{background:var(--sample)} .nas .bar i.over{background:var(--bad)}
+.nas .nstat{display:flex;align-items:center;gap:8px;font-weight:600}
+.nas .nstat .dot{width:9px;height:9px;border-radius:50%;background:var(--faint)}
+.nas .nstat.up .dot{background:var(--ok)} .nas .nstat.down .dot{background:var(--bad)}
+.nas .vol{display:grid;gap:2px}
+.nas .acts{display:flex;flex-wrap:wrap;gap:8px}
+.nas .acts .refresh{margin-left:0}
+.nas button.row{width:100%;text-align:left;font:inherit;background:none;border:0;cursor:pointer;color:inherit}
+.nas button.row:hover{background:var(--hover)}
 [hidden]{display:none!important}
 .foot{font-size:12.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:6px 18px}
 .foot b{color:var(--muted);font-weight:500}
@@ -284,7 +298,7 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
         <div class="seg" role="group" aria-label="메일 계정 선택">
           <button class="segb" id="mf-merge" type="button" aria-pressed="false" hidden title="Gmail과 Daum을 시간순으로 한 목록에">통합</button>
           <button class="segb" id="mf-gmail" type="button" aria-pressed="true" hidden>Gmail</button>
-          <button class="segb" id="mf-daum" type="button" aria-pressed="false" hidden title="Daum(한메일) 받은편지함 — 읽기 전용">Daum</button>
+          <button class="segb" id="mf-daum" type="button" aria-pressed="false" hidden title="Daum(한메일) 받은편지함">Daum</button>
         </div>
         <button class="refresh" id="mailRefresh" type="button">새로고침</button>
         <button class="addbtn" id="mailNew" type="button" hidden>✎ 메일 쓰기</button>
@@ -322,6 +336,17 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
     </section>
   </div>
 
+  <section class="panel nas" id="nasPanel" aria-labelledby="nasH" hidden>
+    <div class="phead">
+      <div class="ptitle"><h2 id="nasH">나스</h2><span class="badge-src">NAS</span></div>
+      <span class="pmeta" id="nasMeta">—</span>
+    </div>
+    <div class="budgrid">
+      <div class="budsum" id="nasSum"></div>
+      <ul class="list budlist" id="nasList"></ul>
+    </div>
+  </section>
+
   <section class="panel bud" id="budPanel" aria-labelledby="budH" hidden>
     <div class="phead">
       <div class="ptitle"><h2 id="budH">구독 · 예산</h2><span class="badge-src">Subscriptions</span></div>
@@ -334,7 +359,7 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
   </section>
 
   <footer class="foot">
-    <span><b>자동 갱신</b> 메일 2분 · 드라이브·일정 5분 (탭이 보일 때만)</span>
+    <span><b>자동 갱신</b> 메일 2분 · 드라이브·일정·나스 5분 (탭이 보일 때만)</span>
     <span><b>샘플</b> 노란 표시가 붙은 항목은 예시 데이터입니다</span>
   </footer>
 </div>
@@ -711,7 +736,7 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
       renderStats();
     }).catch(function(){});
   }
-  /* ---------- Daum 메일 (맥 앱 IMAP, 읽기 전용) ---------- */
+  /* ---------- Daum 메일 (맥 앱 IMAP — 목록은 읽기 전용, 전체 읽음만 표시를 바꿈) ---------- */
   function daumLoad(how){    // how: undefined(처음부터) | "more"(이어서) | "keep"(지금 보이는 만큼 새로고침)
     if(!window.jin) return;
     var d = S.dm, more = how==="more", seq = ++d.seq, unreadOnly = S.mailFilter!=="inbox";
@@ -756,7 +781,8 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
     ["mf-primary","mf-important"].forEach(function(i){ $(i).hidden = dq || mg; });
     $("mf-ads").hidden = dq;
     $("dmSet").hidden = !(dq || mg) || !window.jin;
-    if(window.jin){ $("mailReadAll").hidden = dq || mg; $("mailNew").hidden = dq; }
+    if(window.jin){ $("mailReadAll").hidden = false; $("mailNew").hidden = dq; }
+    $("mailReadAll").title = dq ? "Daum 받은편지함의 안 읽은 메일을 모두 읽음으로 표시" : mg ? "Gmail(지금 필터)과 Daum의 안 읽은 메일을 모두 읽음으로 표시" : "지금 필터의 안 읽은 메일을 모두 읽음으로 표시";
     $("mailMore").hidden = !window.jin || ($("mailReadAll").hidden && $("dmSet").hidden);
     if(dq || mg){ $("mf-all").setAttribute("aria-pressed", String(!inb2)); ["primary","important"].forEach(function(f){ $("mf-"+f).setAttribute("aria-pressed","false"); }); }
     $("df-recency").setAttribute("aria-pressed", String(S.driveOrder==="recency"));
@@ -1036,18 +1062,32 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
     var want0 = load("jd.mailSrc","all");
     if(want0==="daum" || want0==="all") window.jin.call("daumStatus", {}).then(function(st){ if(st && st.configured) (want0==="all" ? goMerge : goDaum)(); }).catch(function(){});
     $("mailReadAll").addEventListener("click", function(){
-      var btn = this, q = (S.mailFilter==="inbox" ? MAIL_Q.all : MAIL_Q[S.mailFilter]) + (S.hideAds ? AD_Q : "");
+      var btn = this, src = S.mailSrc, useG = src!=="daum", useD = src!=="gmail";
+      var q = (S.mailFilter==="inbox" || src==="all" ? MAIL_Q.all : MAIL_Q[S.mailFilter]) + (S.hideAds ? AD_Q : "");
       btn.disabled = true; btn.textContent = "확인 중…";
       var done = function(){ btn.disabled = false; btn.textContent = "전체 읽음"; };
-      needScope("canModify").then(function(){ return window.jin.call("gmailMarkRead", {query: q, dryRun: true}); }).then(function(r){
-        var n = r && r.messages || 0;
-        if(!n){ alert("읽지 않은 메일이 없습니다."); return; }
-        if(!confirm("지금 목록 기준 안 읽은 메일 "+n.toLocaleString("ko-KR")+"통을 모두 읽음으로 표시할까요?\n\n" + (S.hideAds ? "숨겨진 광고 메일은 그대로 둡니다.\n" : "") + "메일은 삭제되지 않고, 되돌릴 수 있게 백업을 저장합니다.")) return;
+      var nG = 0, nD = 0, fmt = function(n){ return n.toLocaleString("ko-KR"); };
+      Promise.all([
+        useG ? needScope("canModify").then(function(){ return window.jin.call("gmailMarkRead", {query: q, dryRun: true}); }).then(function(r){ nG = r && r.messages || 0; }) : null,
+        useD ? window.jin.call("daumMarkRead", {dryRun: true}).then(function(r){ nD = r && r.messages || 0; }) : null
+      ]).then(function(){
+        if(!nG && !nD){ alert("읽지 않은 메일이 없습니다."); return; }
+        var what = src==="daum" ? "Daum 안 읽은 메일 "+fmt(nD)+"통을"
+                 : src==="all" ? "안 읽은 메일 "+fmt(nG+nD)+"통(Gmail "+fmt(nG)+" · Daum "+fmt(nD)+")을"
+                 : "지금 목록 기준 안 읽은 메일 "+fmt(nG)+"통을";
+        if(!confirm(what+" 모두 읽음으로 표시할까요?\n\n" + (useG && S.hideAds ? "Gmail의 숨겨진 광고 메일은 그대로 둡니다.\n" : "") + "메일은 삭제되지 않고, 되돌릴 수 있게 백업을 저장합니다.")) return;
         btn.textContent = "처리 중…";
-        return window.jin.call("gmailMarkRead", {query: q, dryRun: false}).then(function(r2){
-          window.jin.notify("전체 읽음 처리", (r2.messages||0).toLocaleString("ko-KR")+"통을 읽음으로 표시했습니다");
+        return Promise.all([
+          useG && nG ? window.jin.call("gmailMarkRead", {query: q, dryRun: false}) : {messages: 0},
+          useD && nD ? window.jin.call("daumMarkRead", {dryRun: false}) : {messages: 0}
+        ]).then(function(r){
+          var parts = [];
+          if(useG && nG) parts.push((src==="all" ? "Gmail " : "")+fmt(r[0].messages||0)+"통");
+          if(useD && nD) parts.push((src==="all" ? "Daum " : "")+fmt(r[1].messages||0)+"통");
+          window.jin.notify("전체 읽음 처리", parts.join(" · ")+"을 읽음으로 표시했습니다");
           try{ window.jin.call("refreshWidget", {}); }catch(_){}
-          if(S.mcp) S.mcp.invalidate("Gmail","search_threads").catch(function(){ watchMail(); });
+          if(useG && nG && S.mcp) S.mcp.invalidate("Gmail","search_threads").catch(function(){ watchMail(); });
+          if(useD && nD) daumLoad("keep");
         });
       }).catch(function(x){ alert(apiErr(x)); }).then(done);
     });
@@ -1171,10 +1211,168 @@ ul.list{max-height:min(62vh,540px);overflow-y:auto;overscroll-behavior:contain}
     }).catch(function(){ BUD.items = null; renderBud(); });
   }
 
+  /* ---------- 나스 (맥 앱 전용: data/nas.json 이 있을 때만 보임) ----------
+     nas.json: {host:"192.168.x.x", port?:445, paths?:["/Volumes/공유폴더"], web?:"https://….trycloudflare.com", webCmd?:"주소를 알려 주는 명령"}  — paths가 없으면 맥에 붙은(smbfs) 볼륨 중 host의 것을 찾는다.
+     맥에 붙이는 건 Finder(⌘K)의 몫: 비밀번호는 이 앱을 거치지 않고 맥 키체인에 저장된다. */
+  var NAS = {cfg: null, state: "loading", vols: [], items: [], at: null, err: null, busy: false, web: null, webBusy: false, webMsg: ""};
+  var NAS_HIDE = /^(\.|@|#recycle|\$RECYCLE|System Volume)/i;
+  function shq(s){ return "'" + String(s).replace(/'/g, "'\\''") + "'"; }
+  function fsize(n){ if(n==null) return ""; var u=["B","KB","MB","GB","TB"], i=0; while(n>=1024 && i<u.length-1){ n/=1024; i++; } return (i>1 ? n.toFixed(1) : Math.round(n))+u[i]; }
+  function nasIc(f){ if(f.dir) return "DIR"; var m = /\.([A-Za-z0-9]{1,4})$/.exec(f.name); return m ? m[1].toUpperCase() : "FILE"; }
+  function safeDec(x){ try{ return decodeURIComponent(x); }catch(e){ return x; } }
+  function nasVols(cfg){
+    if(cfg.paths && cfg.paths.length) return Promise.resolve(cfg.paths.map(function(p){ return {name: p.replace(/\/+$/,"").split("/").pop(), path: p}; }));
+    return window.jin.run("mount").then(function(r){
+      var out = [];
+      String(r.stdout||"").split("\n").forEach(function(l){
+        var m = /^\/\/(?:[^@\/]*@)?([^\/]+)\/(.+?) on (\/.+?) \(smbfs/.exec(l);
+        if(m && m[1].toLowerCase()===String(cfg.host).toLowerCase()) out.push({name: safeDec(m[2]), path: m[3]});
+      });
+      return out;
+    });
+  }
+  // 같은 디스크의 공유폴더들은 df가 같은 용량을 돌려준다 → 한 칸으로 합쳐 보여준다(이름은 " · "로 이음)
+  function nasDisks(vols){
+    var out = [];
+    vols.forEach(function(v){
+      var g = null;
+      if(v.total) out.forEach(function(o){ if(!g && o.total===v.total && Math.abs(o.used-v.used) < 64*1048576) g = o; });
+      if(g) g.names.push(v.name); else out.push({names: [v.name], total: v.total, used: v.used, free: v.free});
+    });
+    return out;
+  }
+  function nasLoad(){
+    if(!window.jin || !window.jin.run || NAS.busy) return;
+    NAS.busy = true; renderNas();
+    var done = function(){ NAS.busy = false; NAS.at = new Date(); renderNas(); };
+    window.jin.readFile("nas.json").then(function(t){ NAS.cfg = JSON.parse(t); }, function(){ NAS.cfg = null; })
+    .then(function(){
+      if(!NAS.cfg || !NAS.cfg.host){ NAS.cfg = null; return; }
+      return nasVols(NAS.cfg).then(function(vols){
+        if(!vols.length){
+          // 안 붙어 있음 → 나스가 같은 망에 있는지만 본다(SMB 포트)
+          return window.jin.run("nc -z -G 2 "+shq(NAS.cfg.host)+" "+(Number(NAS.cfg.port)||445)+" && echo up || echo down", {timeout: 8}).then(function(r){
+            NAS.vols = []; NAS.items = []; NAS.err = null; NAS.state = /up/.test(r.stdout||"") ? "reachable" : "away";
+          });
+        }
+        NAS.state = "mounted"; NAS.err = null;
+        // 용량
+        var caps = Promise.all(vols.map(function(v){
+          return window.jin.run("df -Pk "+shq(v.path)+" | tail -1").then(function(r){
+            var m = /^\S.*?\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)%/.exec(String(r.stdout||"").trim());
+            if(m){ v.total = Number(m[1])*1024; v.used = Number(m[2])*1024; v.free = Number(m[3])*1024; }
+          }).catch(function(){});
+        }));
+        // 최근 변경: 공유 최상위 + 가장 최근에 바뀐 폴더 3개 안쪽
+        var items = [];
+        var listOne = function(v, dir, rel0){
+          return window.jin.listDir(dir).then(function(ents){
+            ents = ents.filter(function(f){ return !NAS_HIDE.test(f.name); });
+            ents.forEach(function(f){ items.push({name: f.name, dir: f.dir, size: f.size, t: f.mtime, path: f.path, where: v.name+(rel0 ? "/"+rel0 : "")}); });
+            return ents;
+          });
+        };
+        var scan = Promise.all(vols.map(function(v){
+          return listOne(v, v.path, "").then(function(top){
+            var dirs = top.filter(function(f){ return f.dir; }).sort(function(a,b){ return b.mtime-a.mtime; }).slice(0,3);
+            return Promise.all(dirs.map(function(d){ return listOne(v, d.path, d.name).catch(function(){}); }));
+          });
+        })).catch(function(e){ NAS.err = (e && e.message) || "나스 폴더를 읽지 못했습니다. 시스템 설정 → 개인정보 보호 및 보안 → 파일 및 폴더(네트워크 볼륨)에서 진의 데스크를 허용했는지 확인해 주세요."; });
+        return Promise.all([caps, scan]).then(function(){
+          NAS.vols = vols;
+          NAS.items = items.sort(function(a,b){ return b.t-a.t; }).slice(0, 12);
+        });
+      });
+    }).catch(function(e){ NAS.err = (e && e.message) || "나스 상태를 확인하지 못했습니다."; })
+    .then(nasWebCheck).then(done, done);
+  }
+  /* 밖에서 나스 보기: 파이 운영기의 File Browser(Cloudflare 임시 터널). 주소는 파이를 재시작하면 바뀐다. */
+  var NAS_URL_RE = /https:\/\/[a-z0-9-]+\.trycloudflare\.com/;
+  function nasWebCheck(){
+    var u = NAS.cfg && NAS.cfg.web;
+    if(!u){ NAS.web = null; return Promise.resolve(); }
+    return window.jin.run("curl -s -m6 -o /dev/null -w '%{http_code}' "+shq(u+"/api/resources/")).then(function(r){
+      NAS.web = {url: u, up: /^(200|401|403)$/.test(String(r.stdout||"").trim())};   // 비로그인 401 = File Browser가 살아 있음
+    }).catch(function(){ NAS.web = {url: u, up: false}; });
+  }
+  function nasWebRefresh(){
+    if(NAS.webBusy) return;
+    NAS.webBusy = true; NAS.webMsg = "파이에서 새 주소를 받는 중…"; renderNas();
+    var cmd = (NAS.cfg && NAS.cfg.webCmd) || "ssh -o BatchMode=yes -o ConnectTimeout=6 pi nas-web-url";
+    window.jin.run(cmd, {timeout: 20}).then(function(r){
+      var m = NAS_URL_RE.exec(String(r.stdout||""));
+      if(!m){ NAS.webMsg = "파이에 닿지 않았어요. 집 밖이면 Tailscale을 켜고 다시 눌러 주세요."; return; }
+      NAS.cfg.web = m[0];
+      return window.jin.writeFile("nas.json", JSON.stringify(NAS.cfg, null, 2)+"\n").then(nasWebCheck).then(function(){
+        NAS.webMsg = NAS.web && NAS.web.up ? "새 주소로 바꿨어요." : "새 주소를 저장했지만 아직 응답이 없어요. 잠시 뒤 다시 눌러 주세요.";
+      });
+    }).catch(function(){ NAS.webMsg = "주소를 받지 못했습니다."; })
+    .then(function(){ NAS.webBusy = false; renderNas(); });
+  }
+  function renderNas(){
+    var panel = $("nasPanel");
+    if(!window.jin || (!NAS.cfg && !NAS.busy) ){ panel.hidden = true; return; }
+    if(!NAS.cfg){ panel.hidden = true; return; }
+    panel.hidden = false;
+    var sum = $("nasSum"), list = $("nasList"); sum.textContent = ""; list.textContent = "";
+    $("nasMeta").textContent = NAS.busy && !NAS.at ? "확인 중…" : NAS.at ? "확인 "+hm(NAS.at.getTime()) : "—";
+    var host = NAS.cfg.host;
+    var st = NAS.state==="mounted" ? ["up","연결됨"] : NAS.state==="reachable" ? ["","같은 망에 있음 · 아직 안 붙임"] : NAS.state==="away" ? ["down","닿지 않음"] : ["","확인 중"];
+    var b1 = el("div"); var stat = el("div","nstat "+st[0]); stat.appendChild(el("span","dot")); stat.appendChild(document.createTextNode(st[1])); b1.appendChild(stat);
+    b1.appendChild(el("div","bs", host+(NAS.state==="away" ? " — 나스 자체는 집 와이파이(같은 공유기)에서만 보여요." : "")));
+    sum.appendChild(b1);
+    nasDisks(NAS.vols).forEach(function(v){
+      var d = el("div","vol"); d.appendChild(el("div","bk", v.names.join(" · ")));
+      if(v.total){
+        var pct = v.used/v.total*100;
+        d.appendChild(el("div","bv", fsize(v.free)+" 남음"));
+        var bar = el("div","bar"), fill = el("i", pct>95 ? "over" : pct>85 ? "warn" : ""); fill.style.width = Math.min(pct,100)+"%"; bar.appendChild(fill); d.appendChild(bar);
+        d.appendChild(el("div","bs", fsize(v.used)+" / "+fsize(v.total)+" 사용 ("+Math.round(pct)+"%)"));
+      } else d.appendChild(el("div","bs","용량을 읽지 못했습니다"));
+      sum.appendChild(d);
+    });
+    if(NAS.web || NAS.state==="away"){
+      var w = el("div","vol"); w.appendChild(el("div","bk","밖에서 보기 (웹)"));
+      var ws = el("div","nstat "+(NAS.web ? (NAS.web.up ? "up" : "down") : "")); ws.appendChild(el("span","dot"));
+      ws.appendChild(document.createTextNode(!NAS.web ? "주소가 아직 없어요" : NAS.web.up ? "접속 가능 (로그인 필요)" : "응답 없음 · 주소가 바뀌었을 수 있어요")); w.appendChild(ws);
+      if(NAS.web) w.appendChild(el("div","bs", NAS.web.url.replace(/^https:\/\//,"")));
+      var wa = el("div","acts");
+      if(NAS.web && NAS.web.up){ var wo = el("button","refresh","웹으로 열기"); wo.type = "button"; wo.addEventListener("click", function(){ window.jin.open(NAS.web.url); }); wa.appendChild(wo); }
+      var wr = el("button","refresh", NAS.webBusy ? "받는 중…" : "주소 갱신"); wr.type = "button"; wr.disabled = NAS.webBusy; wr.title = "파이 운영기에서 현재 외부 주소를 받아 옵니다 (집이거나 Tailscale이 켜져 있어야 함)"; wr.addEventListener("click", nasWebRefresh); wa.appendChild(wr);
+      w.appendChild(wa);
+      if(NAS.webMsg) w.appendChild(el("div","bs", NAS.webMsg));
+      sum.appendChild(w);
+    }
+    var acts = el("div","acts");
+    var rb = el("button","refresh","새로고침"); rb.type = "button"; rb.disabled = NAS.busy; rb.addEventListener("click", nasLoad); acts.appendChild(rb);
+    var ob = el("button","refresh", NAS.state==="mounted" ? "Finder에서 열기" : "나스 연결"); ob.type = "button";
+    ob.addEventListener("click", function(){ window.jin.open(NAS.state==="mounted" && NAS.vols[0] ? NAS.vols[0].path : "smb://"+host); });
+    if(NAS.state!=="away") acts.appendChild(ob);
+    sum.appendChild(acts);
+    if(NAS.state==="reachable") sum.appendChild(el("div","bs","「나스 연결」을 누르면 Finder가 열리고, 계정 비밀번호는 한 번만 입력하면 맥 키체인에 저장돼요. 붙은 뒤 이 패널이 용량과 최근 파일을 보여 줍니다."));
+    if(NAS.err){ var e1 = el("div","bs", NAS.err); e1.style.color = "var(--bad)"; sum.appendChild(e1); }
+
+    if(NAS.state!=="mounted"){
+      list.appendChild(el("li","empty", NAS.state==="away" ? "집 밖이라 나스에 닿지 않아요." : NAS.state==="reachable" ? "나스를 맥에 붙이면 최근 파일이 여기에 나와요." : "확인 중…"));
+      return;
+    }
+    if(!NAS.items.length){ list.appendChild(el("li","empty", NAS.err ? "파일 목록을 읽지 못했습니다." : "표시할 파일이 없습니다.")); return; }
+    NAS.items.forEach(function(f){
+      var li = el("li"), row = el("button","row"); row.type = "button"; row.title = f.path;
+      row.addEventListener("click", function(){ window.jin.open(f.path); });
+      row.appendChild(el("div","ic", nasIc(f)));
+      row.appendChild(el("div","t", f.name));
+      row.appendChild(el("div","when", rel(f.t)));
+      row.appendChild(el("div","s", f.where+(f.dir ? "" : " · "+fsize(f.size))));
+      li.appendChild(row); list.appendChild(li);
+    });
+  }
+
   /* ---------- 시작 ---------- */
   $("today").textContent = todayLabel();
   renderAll();
   budLoad(); setInterval(budLoad, 60000);
+  nasLoad(); setInterval(function(){ if(!document.hidden) nasLoad(); }, 300000);
   syncAdsPref();
   setInterval(function(){ $("today").textContent = todayLabel(); renderMeta(); renderCal(); renderStats(); renderBud(); }, 30000);
 

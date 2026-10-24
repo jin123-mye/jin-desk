@@ -1,5 +1,6 @@
-// Daum 메일(IMAP, 읽기 전용) — 직접 만든 최소 IMAP 클라이언트(Network.framework, TLS 993). 앱 비밀번호는 맥 키체인에만 저장.
-// 목록: UID SEARCH → UID FETCH (FROM SUBJECT DATE + FLAGS). 메일을 바꾸는 명령(STORE 등)은 쓰지 않는다.
+// Daum 메일(IMAP) — 직접 만든 최소 IMAP 클라이언트(Network.framework, TLS 993). 앱 비밀번호는 맥 키체인에만 저장.
+// 목록: UID SEARCH → UID FETCH (FROM SUBJECT DATE + FLAGS), 읽기 전용(EXAMINE).
+// 메일을 바꾸는 건 markRead(전체 읽음) 하나뿐: SELECT + UID STORE \Seen, 하기 전에 UID 백업을 남겨 되돌릴 수 있다.
 import Foundation
 import Security
 import Network
@@ -80,6 +81,36 @@ actor DaumMail {
         return String(DaumParse.bodyText(m.header).prefix(4000))
     }
 
+    /// 받은편지함의 안 읽은 메일을 모두 읽음으로 (dryRun이면 개수만). undoFile을 주면 그 백업의 UID를 다시 안 읽음으로.
+    /// 메일은 지우지 않고 \Seen 표시만 바꾼다. 실제로 바꾸기 전에 data/Daum-읽음처리-백업-<시각>.json에 UID를 남긴다.
+    func markRead(dryRun: Bool, undoFile: String? = nil) async throws -> [String: Any] {
+        guard let u = user(), let p = password(u) else { throw GErr.bad("Daum 메일이 연결되어 있지 않습니다") }
+        var uids: [Int]
+        if let f = undoFile {
+            uids = (try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: f))) as? [String: Any])?["uids"] as? [Int] ?? []
+        } else {
+            uids = try await search("UNSEEN", user: u, pass: p)
+        }
+        if dryRun { return ["messages": uids.count] }
+        var backup = ""
+        if undoFile == nil, !uids.isEmpty {
+            let f = DATA_DIR.appendingPathComponent("Daum-읽음처리-백업-\(Int(Date().timeIntervalSince1970)).json")
+            try FileManager.default.createDirectory(at: DATA_DIR, withIntermediateDirectories: true)
+            try JSONSerialization.data(withJSONObject: ["at": ISO8601DateFormatter().string(from: Date()), "user": u, "uids": uids]).write(to: f)
+            backup = f.path
+        }
+        if !uids.isEmpty {
+            let c = try await IMAPConn.open(base: base, user: u, pass: p, readOnly: false)
+            defer { c.close() }
+            let op = undoFile == nil ? "+FLAGS.SILENT" : "-FLAGS.SILENT"
+            for i in stride(from: 0, to: uids.count, by: 300) {     // 명령 한 줄이 너무 길어지지 않게 300개씩
+                let chunk = uids[i..<min(i + 300, uids.count)].map(String.init).joined(separator: ",")
+                _ = try await c.command("UID STORE \(chunk) \(op) (\\Seen)")
+            }
+        }
+        return ["messages": uids.count, "backup": backup, "undo": undoFile != nil]
+    }
+
     private func search(_ what: String, user: String, pass: String) async throws -> [Int] {
         let c = try await IMAPConn.open(base: base, user: user, pass: pass)
         defer { c.close() }
@@ -93,14 +124,14 @@ actor DaumMail {
     }
 }
 
-/// 최소 IMAP 클라이언트 (읽기 전용: EXAMINE + PEEK만 쓴다 → 읽음 상태가 바뀌지 않는다)
+/// 최소 IMAP 클라이언트 (기본은 읽기 전용: EXAMINE + PEEK → 읽음 상태가 바뀌지 않는다. readOnly: false면 SELECT)
 final class IMAPConn: @unchecked Sendable {
     private let conn: NWConnection
     private var buf = Data()
     private var n = 0
     private init(_ c: NWConnection) { conn = c }
 
-    static func open(base: String, user: String, pass: String) async throws -> IMAPConn {
+    static func open(base: String, user: String, pass: String, readOnly: Bool = true) async throws -> IMAPConn {
         guard let u = URLComponents(string: base), let host = u.host else { throw GErr.bad("Daum 서버 주소가 올바르지 않습니다") }
         let tls = u.scheme == "imaps"
         let c = IMAPConn(NWConnection(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: UInt16(u.port ?? (tls ? 993 : 143)))!, using: tls ? .tls : .tcp))
@@ -110,7 +141,7 @@ final class IMAPConn: @unchecked Sendable {
                 _ = try await c.readLine()     // 인사말
                 let ok = try await c.run("LOGIN \(quote(user)) \(quote(pass))")
                 guard ok.ok else { throw GErr.bad("Daum 로그인에 실패했습니다. 메일 주소와 앱 비밀번호, Daum 메일의 IMAP 사용 설정을 확인해 주세요") }
-                let ex = try await c.run("EXAMINE INBOX")
+                let ex = try await c.run(readOnly ? "EXAMINE INBOX" : "SELECT INBOX")
                 guard ex.ok else { throw GErr.bad("받은편지함을 열지 못했습니다") }
             }
         } catch { c.close(); throw error is GErr ? error : GErr.bad("Daum 메일 서버에 연결하지 못했습니다. 네트워크를 확인해 주세요") }

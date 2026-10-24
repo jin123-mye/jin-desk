@@ -221,6 +221,10 @@ final class Bridge: NSObject, WKURLSchemeHandler, WKScriptMessageHandlerWithRepl
             return try await DaumMail.shared.save(user: s("user") ?? "", password: s("password") ?? "")
         case "daumBody":
             return try await DaumMail.shared.body(uid: (a["uid"] as? NSNumber)?.intValue ?? 0)
+        case "daumMarkRead":   // {dryRun} 또는 {undo: 백업파일} → 받은편지함 안 읽은 메일을 읽음으로 / 되돌리기
+            let r = try await DaumMail.shared.markRead(dryRun: a["dryRun"] as? Bool ?? true, undoFile: s("undo"))
+            if !(a["dryRun"] as? Bool ?? true) { await MainActor.run { WidgetFeed.shared.refreshMail() } }
+            return r
         case "daumClear":
             await DaumMail.shared.clear(); return true
         case "daumList":
